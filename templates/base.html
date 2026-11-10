@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
 <meta charset="utf-8"/>
@@ -47,6 +47,7 @@
       },
     };
 
+    // Theme initialization
     (function() {
         try {
             var stored = localStorage.getItem('cloudguard_theme');
@@ -57,6 +58,26 @@
             }
         } catch(e) {}
     })();
+
+    // Sidebar state initialization
+    (function() {
+        try {
+            if (localStorage.getItem('cloudguard_sidebar') === 'collapsed') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        } catch(e) {}
+    })();
+
+    function toggleSidebar() {
+        var html = document.documentElement;
+        if (html.classList.contains('sidebar-collapsed')) {
+            html.classList.remove('sidebar-collapsed');
+            localStorage.setItem('cloudguard_sidebar', 'expanded');
+        } else {
+            html.classList.add('sidebar-collapsed');
+            localStorage.setItem('cloudguard_sidebar', 'collapsed');
+        }
+    }
 
     function toggleTheme() {
         var html = document.documentElement;
@@ -108,94 +129,177 @@
   ::-webkit-scrollbar {
     display: none;
   }
+
+  /* ======================================================== */
+  /* COLLAPSIBLE SIDEBAR STYLES                               */
+  /* ======================================================== */
+  #mainSidebar {
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #mainHeader {
+    transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #contentWrapper {
+    transition: padding-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* When collapsed: width shrinks to 4.5rem (72px) */
+  html.sidebar-collapsed #mainSidebar {
+    width: 4.5rem !important;
+  }
+  html.sidebar-collapsed #mainHeader {
+    left: 4.5rem !important;
+  }
+  html.sidebar-collapsed #contentWrapper {
+    padding-left: 4.5rem !important;
+  }
+
+  /* Hide labels, badges, and extra text when collapsed */
+  html.sidebar-collapsed .sidebar-text,
+  html.sidebar-collapsed .sidebar-extra,
+  html.sidebar-collapsed .sidebar-badge {
+    display: none !important;
+  }
+
+  /* Center the icons when collapsed */
+  html.sidebar-collapsed .sidebar-nav-item {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  html.sidebar-collapsed .sidebar-nav-item i {
+    font-size: 1.15rem !important;
+    margin: 0 !important;
+  }
+
+  /* Tooltip on hover when collapsed */
+  html.sidebar-collapsed .sidebar-nav-item {
+    position: relative;
+  }
+  html.sidebar-collapsed .sidebar-nav-item:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0.75rem;
+    background: #181b36;
+    color: #e8e0f0;
+    border: 1px solid #302d4a;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    white-space: nowrap;
+    z-index: 100;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
 </style>
 </head>
 <body class="bg-background font-body text-on-surface min-h-screen">
 
 {% if session.get('user_id') %}
-<!-- Neon Tokyo Dark Sidebar -->
-<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r-2 border-outline z-50 flex flex-col justify-between">
+<!-- Neon Tokyo Collapsible Sidebar -->
+<aside id="mainSidebar" class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r-2 border-outline z-50 flex flex-col justify-between">
 <div class="flex flex-col">
-    <!-- Sidebar Brand Header -->
-    <div class="h-16 px-4 flex items-center justify-between border-b-2 border-outline bg-surface-container-low">
-        <a href="{{ url_for('scans.dashboard') }}" class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-primary text-black dark:text-white flex items-center justify-center font-headline font-bold text-lg border border-primary">
+    <!-- Sidebar Brand Header with Collapse Toggle Button -->
+    <div class="h-16 px-3 flex items-center justify-between border-b-2 border-outline bg-surface-container-low">
+        <a href="{{ url_for('scans.dashboard') }}" class="flex items-center gap-2 overflow-hidden">
+            <div class="w-8 h-8 bg-primary text-black dark:text-white flex items-center justify-center font-headline font-bold text-lg border border-primary flex-shrink-0">
                 CG
             </div>
-            <span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface">CloudGuard</span>
+            <span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface sidebar-text whitespace-nowrap">CloudGuard</span>
         </a>
-        <span class="font-mono text-xs px-2 py-0.5 bg-primary/20 text-primary border border-primary font-bold uppercase tracking-wider">SEC</span>
+        <button onclick="toggleSidebar()" class="w-7 h-7 flex items-center justify-center bg-surface-container hover:bg-primary text-on-surface hover:text-white border border-outline hover:border-primary transition-all text-xs font-mono" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+        </button>
     </div>
 
-    <!-- Nav Items -->
-    <nav class="flex flex-col gap-1.5 p-3">
-        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-bold border transition-all {% if request.endpoint == 'scans.dashboard' %}bg-primary text-black dark:text-white border-primary shadow-[0_0_10px_rgba(255,45,120,0.25)]{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.dashboard') }}">
-            <i class="fa-solid fa-house w-4 text-center text-sm"></i>
-            <span class="tracking-wide text-sm uppercase">Dashboard</span>
+    <!-- Nav Items with Tooltips for Collapsed View -->
+    <nav class="flex flex-col gap-1.5 p-2">
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-bold border transition-all {% if request.endpoint == 'scans.dashboard' %}bg-primary text-black dark:text-white border-primary shadow-[0_0_10px_rgba(255,45,120,0.25)]{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.dashboard') }}" data-tooltip="Dashboard">
+            <i class="fa-solid fa-house w-4 text-center text-sm flex-shrink-0"></i>
+            <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Dashboard</span>
         </a>
-        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}">
-            <i class="fa-solid fa-upload w-4 text-center text-sm text-secondary"></i>
-            <span class="tracking-wide text-sm uppercase">Upload Scan</span>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}" data-tooltip="Upload Scan">
+            <i class="fa-solid fa-upload w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+            <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Upload Scan</span>
         </a>
-        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.history' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}">
-            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm text-secondary"></i>
-            <span class="tracking-wide text-sm uppercase">Scan History</span>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.history' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}" data-tooltip="Scan History">
+            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+            <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Scan History</span>
         </a>
-        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'analytics.analytics' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('analytics.analytics') }}">
-            <i class="fa-solid fa-chart-column w-4 text-center text-sm text-secondary"></i>
-            <span class="tracking-wide text-sm uppercase">Analytics</span>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'analytics.analytics' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('analytics.analytics') }}" data-tooltip="Analytics">
+            <i class="fa-solid fa-chart-column w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+            <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Analytics</span>
         </a>
 
         {% if session.get('role') == 'admin' %}
         <!-- Admin Subsection -->
         <div class="pt-4 mt-2 border-t-2 border-dashed border-outline">
-            <div class="flex items-center justify-between px-3 py-1.5 mb-1 bg-surface-container border border-outline">
+            <div class="sidebar-extra flex items-center justify-between px-3 py-1.5 mb-1 bg-surface-container border border-outline">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-gear text-xs text-primary"></i>
-                    <span class="font-headline font-bold text-xs uppercase tracking-wider text-on-surface">Admin Panel</span>
+                    <span class="font-headline font-bold text-xs uppercase tracking-wider text-on-surface">Admin</span>
                 </div>
                 <span class="font-mono text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary border border-primary font-bold">ROOT</span>
             </div>
-            <div class="flex flex-col gap-1 pl-3 mt-1">
-                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.users' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-secondary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.users') }}">User Management</a>
-                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.rules' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.rules') }}">Security Rules</a>
-                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.audit' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.audit') }}">Audit Log</a>
+            <div class="flex flex-col gap-1 mt-1">
+                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.users' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-secondary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.users') }}" data-tooltip="User Management">
+                    <i class="fa-solid fa-users text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
+                    <span class="sidebar-text">User Management</span>
+                </a>
+                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.rules' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.rules') }}" data-tooltip="Security Rules">
+                    <i class="fa-solid fa-sliders text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
+                    <span class="sidebar-text">Security Rules</span>
+                </a>
+                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.audit' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.audit') }}" data-tooltip="Audit Log">
+                    <i class="fa-solid fa-file-shield text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
+                    <span class="sidebar-text">Audit Log</span>
+                </a>
             </div>
         </div>
         {% endif %}
     </nav>
 </div>
 
-<!-- Engine Status Box in Sidebar -->
-<div class="p-3 m-3 bg-surface-container border border-outline">
+<!-- Engine Status Box in Sidebar (Mini badge in collapsed mode) -->
+<div class="p-2.5 m-2 bg-surface-container border border-outline text-center">
     <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse"></span>
-            <span class="font-headline text-xs uppercase font-bold tracking-wide text-on-surface">Engine Active</span>
+        <div class="flex items-center gap-2 mx-auto">
+            <span class="w-2.5 h-2.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse flex-shrink-0"></span>
+            <span class="font-headline text-xs uppercase font-bold tracking-wide text-on-surface sidebar-text">Active</span>
         </div>
-        <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 bg-surface-container-high text-secondary border border-outline">v2.4.1</span>
+        <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 bg-surface-container-high text-secondary border border-outline sidebar-badge">v2.4</span>
     </div>
-    <p class="font-mono text-[11px] text-on-surface-variant mt-1.5 uppercase font-medium">Node Cluster // PROD</p>
+    <p class="font-mono text-[10px] text-on-surface-variant mt-1 uppercase font-medium sidebar-text truncate">PROD // MESH</p>
 </div>
 </aside>
 {% endif %}
 
 <!-- Main Content Layout wrapper -->
-<div class="{% if session.get('user_id') %}pl-64{% else %}w-full{% endif %}">
+<div id="contentWrapper" class="{% if session.get('user_id') %}pl-64{% else %}w-full{% endif %}">
     <!-- Top Header -->
-    <header class="fixed top-0 {% if session.get('user_id') %}left-64{% else %}left-0{% endif %} right-0 h-16 bg-surface-container-lowest border-b-2 border-outline z-40 flex items-center justify-between px-6">
+    <header id="mainHeader" class="fixed top-0 {% if session.get('user_id') %}left-64{% else %}left-0{% endif %} right-0 h-16 bg-surface-container-lowest border-b-2 border-outline z-40 flex items-center justify-between px-6">
         <div class="flex items-center gap-3 font-headline text-sm font-bold">
+            {% if session.get('user_id') %}
+            <!-- Fast Sidebar Toggle in Top Bar as well -->
+            <button onclick="toggleSidebar()" class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-high border border-outline text-on-surface" title="Collapse / Expand Sidebar">
+                <i class="fa-solid fa-bars-staggered text-xs"></i>
+            </button>
+            {% endif %}
             <span class="flex items-center gap-2 px-2.5 py-1 bg-primary text-black dark:text-white border border-primary uppercase text-xs shadow-[0_0_8px_rgba(255,45,120,0.3)]">
                 <i class="fa-solid fa-shield-halved"></i> CloudGuard Core
             </span>
             <span class="text-outline font-black">/</span>
-            <span class="uppercase tracking-wide text-on-surface">Operational Console</span>
+            <span class="uppercase tracking-wide text-on-surface hidden sm:inline">Operational Console</span>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
             <!-- Theme Toggle Button -->
             <button onclick="toggleTheme()" class="font-mono text-xs px-2.5 py-1.5 bg-surface-container hover:bg-surface-container-high border border-outline uppercase font-bold transition-all text-on-surface" title="Toggle Light Bauhaus / Dark Tokyo">
-                <span class="dark:hidden">? Dark (Tokyo)</span>
-                <span class="hidden dark:inline">¤ Light (Bauhaus)</span>
+                <span class="dark:hidden">☾ Dark (Tokyo)</span>
+                <span class="hidden dark:inline">☼ Light (Bauhaus)</span>
             </button>
 
             {% if session.get('user_id') %}
@@ -203,17 +307,17 @@
                 <div class="w-7 h-7 bg-primary text-black dark:text-white flex items-center justify-center font-bold text-xs border border-primary font-mono">
                     {{ session.get('email', 'U')[0]|upper }}
                 </div>
-                <div class="flex flex-col text-left">
+                <div class="flex flex-col text-left hidden md:flex">
                     <span class="font-mono text-xs text-on-surface font-bold leading-tight">{{ session.get('email', '') }}</span>
                     <span class="font-mono text-[10px] text-secondary font-medium uppercase">SecOps Team Alpha</span>
                 </div>
             </div>
-            <span class="font-mono text-xs px-2 py-1 bg-surface-container-high text-primary font-black border border-primary uppercase">
+            <span class="font-mono text-xs px-2 py-1 bg-surface-container-high text-primary font-black border border-primary uppercase hidden sm:inline-block">
                 {{ session.get('role', 'viewer') }}
             </span>
             <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low hover:bg-primary text-on-surface hover:text-white border border-outline hover:border-primary transition-all font-headline font-bold text-xs uppercase">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Logout</span>
+                <span class="hidden sm:inline">Logout</span>
             </a>
             {% else %}
             <a href="{{ url_for('auth.login') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 border border-outline hover:bg-surface-container">Sign In</a>
@@ -257,4 +361,4 @@
 
 {% block scripts %}{% endblock %}
 </body>
-</html>
+</html>
