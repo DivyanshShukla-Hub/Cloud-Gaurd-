@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Immutable Security Audit Log — CloudGuard Admin{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-lock"></i> Administration / Forensics & Audit
+        </div>
+        <h1 class="page-title">Immutable System Audit Trail</h1>
+        <p class="page-subtitle">Chronological ledger of security-sensitive operations, user sessions, and compliance scans</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="{{ url_for('admin.users') }}" class="btn-action btn-ghost"><i class="fa-solid fa-users"></i> Users</a>
+        <a href="{{ url_for('admin.rules') }}" class="btn-action btn-ghost"><i class="fa-solid fa-sliders"></i> Rules</a>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div class="card-title-bar">
+        <div class="card-heading">
+            <i class="fa-solid fa-file-shield" style="color: var(--azure);"></i>
+            <span>Recorded Forensic Events ({{ logs|length }})</span>
+        </div>
+        <span style="font-size: 0.78rem; color: var(--text-tertiary);">Ordered: Newest First</span>
+    </div>
+
+    {% if logs %}
+    <div class="table-shell">
+        <table class="enterprise-table">
+            <thead>
+                <tr>
+                    <th style="width: 180px;">Event Timestamp</th>
+                    <th style="width: 220px;">Actor Identity</th>
+                    <th style="width: 170px;">Action Classification</th>
+                    <th>Target Object / Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in logs %}
+                <tr>
+                    <td style="color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
+                        {{ l['performed_at'][:19] }}
+                    </td>
+                    <td>
+                        {% if l['email'] %}
+                            <strong style="color: #fff; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-user-shield" style="color: var(--azure); font-size: 0.8rem;"></i>
+                                {{ l['email'] }}
+                            </strong>
+                        {% else %}
+                            <span style="color: var(--text-tertiary); font-style: italic;">System / Anonymous</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="code-pill" style="font-size: 0.75rem; letter-spacing: 0.5px; color: {% if 'DELETE' in l['action'] or 'DISABLE' in l['action'] or 'SUSPEND' in l['action'] %}var(--critical){% elif 'LOGIN' in l['action'] or 'SCAN' in l['action'] %}var(--clean){% else %}var(--azure){% endif %};">
+                            {{ l['action'] }}
+                        </span>
+                    </td>
+                    <td style="color: #cbd5e1; font-size: 0.88rem;">
+                        {{ l['target'] }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3.5rem 1rem;">
+        <i class="fa-solid fa-receipt" style="font-size: 2.5rem; color: #334155; margin-bottom: 1rem;"></i>
+        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">No Audit Events Recorded</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem;">
+            Security-relevant operations will be automatically appended here.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

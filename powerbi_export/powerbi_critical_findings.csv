@@ -1,0 +1,4 @@
+finding_id,filename,rule_name,fix_guidance,detail,scanned_at,email
+1,sample_bad.json,Public Blob Access,Set allowBlobPublicAccess to false in your storage configuration.,storage.allowBlobPublicAccess is set to true. Blobs are publicly accessible.,2026-11-09 14:05:25,admin@cloudguard.com
+2,sample_bad.json,HTTPS Not Enforced,Set supportsHttpsTrafficOnly to true to enforce encrypted connections.,storage.supportsHttpsTrafficOnly is false. Unencrypted HTTP traffic is allowed.,2026-11-09 14:05:25,admin@cloudguard.com
+3,sample_bad.json,No Database Firewall,Add at least one firewall rule to restrict database access by IP.,sql.firewallRules is empty or missing. Database has no firewall protection.,2026-11-09 14:05:25,admin@cloudguard.com

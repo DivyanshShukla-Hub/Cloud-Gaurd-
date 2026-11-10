@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}SOC Executive Dashboard — CloudGuard{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i> SOC Workspace / Overview
+        </div>
+        <h1 class="page-title">Cloud Posture & Compliance Dashboard</h1>
+        <p class="page-subtitle">Real-time posture monitoring across Azure Resource Manager and Infrastructure as Code configurations</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{{ url_for('analytics.analytics') }}" class="btn-action btn-ghost">
+            <i class="fa-solid fa-chart-line"></i> Deep Analytics
+        </a>
+        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Ingest New Config
+        </a>
+    </div>
+</div>
+
+<!-- 4 Executive KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-azure">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Audited Configurations</div>
+            <div class="kpi-number">{{ total_scans }}</div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-critical">
+            <i class="fa-solid fa-radiation"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Critical Vulnerabilities</div>
+            <div class="kpi-number" style="color: var(--critical);">{{ critical_findings }}</div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-clean">
+            <i class="fa-solid fa-shield-check"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Active CIS Controls</div>
+            <div class="kpi-number" style="color: var(--clean);">{{ rules_active }} <span style="font-size: 0.9rem; color: var(--text-tertiary); font-weight: 500;">/ 15</span></div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-purple">
+            <i class="fa-regular fa-calendar-check"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Latest Assessment</div>
+            <div class="kpi-number" style="font-size: 1.35rem; margin-top: 0.4rem; color: #e2e8f0;">{{ last_scan_date }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Scans Section -->
+<div class="glass-card">
+    <div class="card-title-bar">
+        <div class="card-heading">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--azure);"></i>
+            <span>Recent Configuration Audits</span>
+        </div>
+        <a href="{{ url_for('scans.history') }}" class="btn-action btn-ghost" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;">
+            Full Audit Log ({{ total_scans }}) <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        </a>
+    </div>
+
+    {% if recent_scans %}
+    <div class="table-shell">
+        <table class="enterprise-table">
+            <thead>
+                <tr>
+                    <th>Scan Reference</th>
+                    <th>Configuration File</th>
+                    <th>Assessment Date</th>
+                    <th>Calculated Risk</th>
+                    <th>Findings Breakdown</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in recent_scans %}
+                <tr>
+                    <td>
+                        <span class="code-pill">#SCAN-{{ s['scan_id'] }}</span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                            {{ s['filename'] }}
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        {{ s['scanned_at'][:19] }}
+                    </td>
+                    <td>
+                        <span class="status-pill pill-{{ s['risk_score']|lower }}">
+                            <i class="fa-solid fa-shield-virus"></i> {{ s['risk_score'] }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if s['total_findings'] == 0 %}
+                            <span style="color: var(--clean); font-weight: 700; font-size: 0.85rem;">
+                                <i class="fa-solid fa-circle-check"></i> 0 Violations (Clean)
+                            </span>
+                        {% else %}
+                            <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                <span style="font-weight: 700; margin-right: 0.35rem;">{{ s['total_findings'] }}</span>
+                                {% if s['critical_count'] > 0 %}<span class="status-pill pill-critical" style="padding: 0.15rem 0.45rem;">{{ s['critical_count'] }}C</span>{% endif %}
+                                {% if s['high_count'] > 0 %}<span class="status-pill pill-high" style="padding: 0.15rem 0.45rem;">{{ s['high_count'] }}H</span>{% endif %}
+                                {% if s['medium_count'] > 0 %}<span class="status-pill pill-medium" style="padding: 0.15rem 0.45rem;">{{ s['medium_count'] }}M</span>{% endif %}
+                                {% if s['low_count'] > 0 %}<span class="status-pill pill-low" style="padding: 0.15rem 0.45rem;">{{ s['low_count'] }}L</span>{% endif %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Inspect Report
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3.5rem 1rem;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(14, 165, 233, 0.1); border: 1px dashed var(--azure); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; color: var(--azure); font-size: 1.5rem;">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">No Cloud Configurations Audited Yet</h3>
+        <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.5rem auto; font-size: 0.9rem;">
+            Upload your Azure Resource Manager (ARM), Bicep export, or cloud configuration file to detect critical misconfigurations.
+        </p>
+        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Ingest First Configuration
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Audit History — CloudGuard{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i> Workspace / Audit Records
+        </div>
+        <h1 class="page-title">Configuration Audit History</h1>
+        <p class="page-subtitle">Historical archive of all evaluated cloud configurations and security postures</p>
+    </div>
+    <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Ingest New Configuration
+    </a>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div style="position: relative; width: 340px;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 0.85rem;"></i>
+            <input type="text" id="historySearch" placeholder="Search by file name or risk level..." style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.4rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.88rem; outline: none;" onkeyup="filterTable()">
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            Total Assessments: <strong style="color: #fff;">{{ scans|length }}</strong>
+        </div>
+    </div>
+
+    {% if scans %}
+    <div class="table-shell">
+        <table class="enterprise-table" id="scansTable">
+            <thead>
+                <tr>
+                    <th>Scan Reference</th>
+                    <th>Configuration Manifest</th>
+                    <th>Audit Timestamp</th>
+                    <th>Calculated Risk</th>
+                    <th>Critical</th>
+                    <th>High</th>
+                    <th>Medium</th>
+                    <th>Low</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in scans %}
+                <tr>
+                    <td><span class="code-pill">#{{ s['scan_id'] }}</span></td>
+                    <td>
+                        <strong style="color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                            {{ s['filename'] }}
+                        </strong>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        {{ s['scanned_at'][:19] }}
+                    </td>
+                    <td>
+                        <span class="status-pill pill-{{ s['risk_score']|lower }}">
+                            {{ s['risk_score'] }}
+                        </span>
+                    </td>
+                    <td style="color: var(--critical); font-weight: 700;">{{ s['critical_count'] }}</td>
+                    <td style="color: var(--high); font-weight: 700;">{{ s['high_count'] }}</td>
+                    <td style="color: var(--medium); font-weight: 700;">{{ s['medium_count'] }}</td>
+                    <td style="color: var(--low); font-weight: 700;">{{ s['low_count'] }}</td>
+                    <td style="text-align: right;">
+                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-eye"></i> View Report
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3.5rem 1rem;">
+        <i class="fa-solid fa-clock-rotate-left" style="font-size: 2.5rem; color: #334155; margin-bottom: 1rem;"></i>
+        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">No Past Assessments Recorded</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; max-width: 440px; margin: 0 auto 1.5rem auto;">
+            Ingest and scan a cloud infrastructure configuration file to start tracking assessment history.
+        </p>
+        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Start First Audit
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterTable() {
+    const input = document.getElementById("historySearch");
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll("#scansTable tbody tr");
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+    });
+}
+</script>
+{% endblock %}

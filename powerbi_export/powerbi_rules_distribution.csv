@@ -1,0 +1,16 @@
+rule_id,rule_name,severity,category_name,trigger_frequency
+1,Public Blob Access,Critical,Storage Security,1
+2,HTTPS Not Enforced,Critical,Storage Security,1
+3,No Database Firewall,Critical,Database Security,1
+4,Weak TLS Version,High,Encryption & TLS,1
+5,Encryption at Rest Disabled,High,Storage Security,1
+6,Open Network Access,High,Network & Access,1
+7,Overly Broad Admin Access,High,Identity & Access Management,0
+8,Audit Logging Disabled,Medium,Monitoring & Logging,1
+9,MFA Not Required,Medium,Identity & Access Management,1
+10,Secrets in Config File,Medium,Governance & Resource Management,0
+11,No Resource Lock,Medium,Governance & Resource Management,1
+12,No Resource Tags,Low,Governance & Resource Management,1
+13,Permissive CORS Policy,High,Network & Access,1
+14,No Backup Policy,Medium,Resilience & Backup,1
+15,No Activity Alerts,Low,Monitoring & Logging,1

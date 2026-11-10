@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Ingest & Audit Cloud Configuration — CloudGuard{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i> Workspace / Compliance Ingestion
+        </div>
+        <h1 class="page-title">Ingest Cloud Infrastructure Config</h1>
+        <p class="page-subtitle">Upload Azure Resource Manager, Bicep, or JSON/YAML manifests to trigger 15 automated CIS benchmark checks</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+    <!-- Main Dropzone Box -->
+    <div class="glass-card">
+        <form action="{{ url_for('scans.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <input type="file" name="config_file" id="config_file" accept=".json,.yaml,.yml" style="display: none;" onchange="handleFileSelect(this)">
+
+            <div class="upload-hero-zone" id="dropArea" onclick="document.getElementById('config_file').click()">
+                <div class="upload-icon-circle">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3 style="color: #fff; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">
+                    Drop Azure Configuration File Here
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; max-width: 440px; margin: 0 auto 1.5rem auto;">
+                    Drag and drop your infrastructure manifest, or <span style="color: var(--azure); font-weight: 600; text-decoration: underline;">browse your local system</span>.
+                </p>
+
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <span class="code-pill"><i class="fa-solid fa-code"></i> .JSON</span>
+                    <span class="code-pill"><i class="fa-solid fa-file-lines"></i> .YAML</span>
+                    <span class="code-pill"><i class="fa-solid fa-file-code"></i> .YML</span>
+                    <span class="code-pill"><i class="fa-solid fa-weight-hanging"></i> &le; 1 MB</span>
+                </div>
+
+                <div id="filePreviewCard" style="display: none; background: rgba(14, 165, 233, 0.1); border: 1px solid var(--azure); border-radius: 8px; padding: 0.75rem 1.25rem; max-width: 400px; margin: 1rem auto 0 auto; text-align: left;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <i class="fa-solid fa-file-code" style="color: var(--azure); font-size: 1.2rem;"></i>
+                            <div>
+                                <div id="previewFileName" style="color: #fff; font-weight: 600; font-size: 0.9rem;"></div>
+                                <div id="previewFileSize" style="color: var(--text-secondary); font-size: 0.78rem;"></div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check" style="color: var(--clean);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <div style="font-size: 0.82rem; color: var(--text-tertiary);">
+                    <i class="fa-solid fa-lock" style="color: var(--clean);"></i> In-Memory Processing &bull; Cryptographically Safe
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="{{ url_for('scans.dashboard') }}" class="btn-action btn-ghost">Cancel</a>
+                    <button type="submit" class="btn-action btn-azure" id="scanSubmitBtn" disabled>
+                        <i class="fa-solid fa-bolt"></i> Run Security Assessment
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quick Sample Loaders & Guidance -->
+    <div>
+        <div class="glass-card" style="margin-bottom: 1.5rem;">
+            <div class="card-heading" style="margin-bottom: 0.75rem; font-size: 1rem;">
+                <i class="fa-solid fa-vial" style="color: #a855f7;"></i>
+                <span>One-Click Test Samples</span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                Test CloudGuard instantly without preparing a cloud configuration file:
+            </p>
+
+            <button type="button" class="btn-action btn-ghost" style="width: 100%; justify-content: flex-start; margin-bottom: 0.65rem; border-left: 3px solid var(--critical);" onclick="loadSample('bad')">
+                <i class="fa-solid fa-radiation" style="color: var(--critical);"></i>
+                <div style="text-align: left;">
+                    <div style="color: #fff; font-weight: 600; font-size: 0.85rem;">Load Vulnerable Sample</div>
+                    <div style="color: var(--text-tertiary); font-size: 0.75rem;">Triggers 13 security violations (Critical)</div>
+                </div>
+            </button>
+
+            <button type="button" class="btn-action btn-ghost" style="width: 100%; justify-content: flex-start; border-left: 3px solid var(--clean);" onclick="loadSample('good')">
+                <i class="fa-solid fa-circle-check" style="color: var(--clean);"></i>
+                <div style="text-align: left;">
+                    <div style="color: #fff; font-weight: 600; font-size: 0.85rem;">Load Compliant Sample</div>
+                    <div style="color: var(--text-tertiary); font-size: 0.75rem;">Zero findings &bull; 100% clean posture</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="glass-card">
+            <div class="card-heading" style="margin-bottom: 0.75rem; font-size: 1rem;">
+                <i class="fa-solid fa-shield-halved" style="color: var(--azure);"></i>
+                <span>Rules Evaluated (15)</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                    <span><strong style="color: var(--critical);">Critical</strong> (Blob, HTTPS, SQL FW)</span>
+                    <span class="status-pill pill-critical">3 Rules</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                    <span><strong style="color: var(--high);">High</strong> (TLS, SSE, Network, Admin)</span>
+                    <span class="status-pill pill-high">5 Rules</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                    <span><strong style="color: var(--medium);">Medium</strong> (Audit, MFA, Secrets, Lock)</span>
+                    <span class="status-pill pill-medium">5 Rules</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                    <span><strong style="color: var(--low);">Low</strong> (Tags, Activity Alerts)</span>
+                    <span class="status-pill pill-low">2 Rules</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 1024 * 1024) {
+            alert("File exceeds maximum allowed size (1 MB). Please select a valid file.");
+            input.value = "";
+            document.getElementById("filePreviewCard").style.display = "none";
+            document.getElementById("scanSubmitBtn").disabled = true;
+            return;
+        }
+
+        document.getElementById("previewFileName").innerText = file.name;
+        document.getElementById("previewFileSize").innerText = (file.size / 1024).toFixed(1) + " KB";
+        document.getElementById("filePreviewCard").style.display = "block";
+        document.getElementById("scanSubmitBtn").disabled = false;
+    }
+}
+
+// Drag & drop highlight
+const dropArea = document.getElementById("dropArea");
+["dragenter", "dragover"].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+    }, false);
+});
+
+["dragleave", "drop"].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+    }, false);
+});
+
+dropArea.addEventListener("drop", (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length) {
+        document.getElementById("config_file").files = files;
+        handleFileSelect(document.getElementById("config_file"));
+    }
+});
+
+function loadSample(type) {
+    const filename = type === 'bad' ? 'sample_bad.json' : 'sample_good.json';
+    fetch('/' + filename)
+        .then(response => {
+            if (!response.ok) throw new Error("Could not fetch " + filename);
+            return response.blob();
+        })
+        .then(blob => {
+            const file = new File([blob], filename, { type: "application/json" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            document.getElementById("config_file").files = dataTransfer.files;
+            handleFileSelect(document.getElementById("config_file"));
+        })
+        .catch(err => {
+            alert("Sample file is located at project root: " + filename + ". You can browse and upload it directly!");
+        });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Executive Dashboard — CloudGuard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link rel="stylesheet" href="/static/css/style.css?v=2.4">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --bg-base: #06090f;
+    --bg-surface: #0c121e;
+    --bg-card: rgba(16, 24, 39, 0.75);
+    --bg-card-hover: rgba(24, 36, 58, 0.85);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(14, 165, 233, 0.4);
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-tertiary: #64748b;
+    
+    --azure: #0ea5e9;
+    --azure-glow: rgba(14, 165, 233, 0.25);
+    --azure-dark: #0369a1;
+    
+    --critical: #ef4444;
+    --critical-glow: rgba(239, 68, 68, 0.2);
+    --critical-bg: rgba(239, 68, 68, 0.12);
+    
+    --high: #f97316;
+    --high-glow: rgba(249, 115, 22, 0.2);
+    --high-bg: rgba(249, 115, 22, 0.12);
+    
+    --medium: #f59e0b;
+    --medium-glow: rgba(245, 158, 11, 0.2);
+    --medium-bg: rgba(245, 158, 11, 0.12);
+    
+    --low: #38bdf8;
+    --low-glow: rgba(56, 189, 248, 0.2);
+    --low-bg: rgba(56, 189, 248, 0.12);
+    
+    --clean: #10b981;
+    --clean-glow: rgba(16, 185, 129, 0.2);
+    --clean-bg: rgba(16, 185, 129, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-base);
+    background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.12), transparent 70%),
+        radial-gradient(ellipse 60% 30% at 100% 100%, rgba(99, 102, 241, 0.05), transparent);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+}
+
+code, pre, .mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* NAVBAR */
+nav.enterprise-nav {
+    background: rgba(12, 18, 30, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+}
+
+.logo-shield {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0c121e;
+    font-size: 1rem;
+    box-shadow: 0 0 15px var(--azure-glow);
+}
+
+.status-beacon {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #34d399;
+}
+
+.beacon-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.15s ease;
+}
+
+.nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    color: #fff;
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.user-profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.82rem;
+}
+
+.user-avatar {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-signout {
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    background: rgba(248, 113, 113, 0.05);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+}
+
+.btn-signout:hover {
+    background: rgba(248, 113, 113, 0.15);
+    color: #fca5a5;
+}
+
+/* MAIN CONTAINER */
+.app-container {
+    max-width: 1240px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    flex: 1;
+    width: 100%;
+}
+
+/* PAGE HEADER */
+.page-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.breadcrumb {
+    font-size: 0.78rem;
+    color: var(--azure);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.page-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.75px;
+}
+
+.page-subtitle {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* CARDS */
+.glass-card {
+    background: linear-gradient(180deg, rgba(16, 24, 39, 0.85) 0%, rgba(12, 18, 30, 0.95) 100%);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.card-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.card-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+/* KPI STATS GRID */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: linear-gradient(180deg, rgba(16, 24, 39, 0.85) 0%, rgba(12, 18, 30, 0.95) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--azure), transparent);
+}
+
+.kpi-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.kpi-icon-azure { background: var(--azure-glow); color: var(--azure); border: 1px solid rgba(14, 165, 233, 0.3); }
+.kpi-icon-critical { background: var(--critical-glow); color: var(--critical); border: 1px solid rgba(239, 68, 68, 0.3); }
+.kpi-icon-clean { background: var(--clean-glow); color: var(--clean); border: 1px solid rgba(16, 185, 129, 0.3); }
+.kpi-icon-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+.kpi-content {
+    flex: 1;
+}
+
+.kpi-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.kpi-number {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-top: 0.15rem;
+    letter-spacing: -0.5px;
+}
+
+/* BUTTONS */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-azure {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: #fff;
+    box-shadow: 0 0 15px var(--azure-glow);
+}
+
+.btn-azure:hover {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* BADGES */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pill-critical { background: var(--critical-bg); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
+.pill-high { background: var(--high-bg); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.35); }
+.pill-medium { background: var(--medium-bg); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.35); }
+.pill-low { background: var(--low-bg); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
+.pill-clean { background: var(--clean-bg); color: #86efac; border: 1px solid rgba(16, 185, 129, 0.35); }
+
+/* DATA TABLES */
+.table-shell {
+    overflow-x: auto;
+}
+
+table.enterprise-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.enterprise-table th {
+    background: rgba(12, 18, 30, 0.9);
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+    padding: 0.85rem 1.15rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+table.enterprise-table td {
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+table.enterprise-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* FINDINGS CARDS */
+.finding-card {
+    background: rgba(12, 18, 30, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    position: relative;
+    border-left: 4px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.finding-card.severity-critical { border-left-color: var(--critical); }
+.finding-card.severity-high { border-left-color: var(--high); }
+.finding-card.severity-medium { border-left-color: var(--medium); }
+.finding-card.severity-low { border-left-color: var(--low); }
+
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+}
+
+.finding-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.remediation-box {
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.85rem;
+    font-size: 0.88rem;
+    color: #a7f3d0;
+}
+
+.code-pill {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: #38bdf8;
+    font-size: 0.82rem;
+}
+
+/* UPLOAD DROPZONE */
+.upload-hero-zone {
+    border: 2px dashed rgba(14, 165, 233, 0.35);
+    background: radial-gradient(circle at center, rgba(14, 165, 233, 0.04) 0%, rgba(12, 18, 30, 0.8) 100%);
+    border-radius: 16px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.upload-hero-zone:hover, .upload-hero-zone.dragover {
+    border-color: var(--azure);
+    background: radial-gradient(circle at center, rgba(14, 165, 233, 0.08) 0%, rgba(12, 18, 30, 0.9) 100%);
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.15);
+}
+
+.upload-icon-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.05));
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem auto;
+    font-size: 1.75rem;
+    color: var(--azure);
+}
+
+/* FOOTER */
+footer.enterprise-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 0.82rem;
+    background: rgba(6, 9, 15, 0.9);
+}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Top Enterprise Navigation -->
+    <nav class="enterprise-nav">
+        <div class="brand-wrapper">
+            <a href="/dashboard" class="brand-logo">
+                <div class="logo-shield">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <span>CloudGuard<span style="color: var(--azure);">.io</span></span>
+            </a>
+            <div class="status-beacon">
+                <span class="beacon-dot"></span>
+                <span>CIS Engine Active (15 Rules)</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            
+                <li>
+                    <a href="/dashboard" class="nav-link ">
+                        <i class="fa-solid fa-table-columns"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/upload" class="nav-link ">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Scan
+                    </a>
+                </li>
+                <li>
+                    <a href="/scan/history" class="nav-link ">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    </a>
+                </li>
+                <li>
+                    <a href="/analytics" class="nav-link ">
+                        <i class="fa-solid fa-chart-pie"></i> Analytics
+                    </a>
+                </li>
+                
+                    <li>
+                        <a href="/admin/users" class="nav-link ">
+                            <i class="fa-solid fa-users-gear"></i> Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/rules" class="nav-link ">
+                            <i class="fa-solid fa-sliders"></i> Rules
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/audit" class="nav-link ">
+                            <i class="fa-solid fa-file-shield"></i> Audit
+                        </a>
+                    </li>
+                
+
+                <!-- User Profile Chip -->
+                <li style="margin-left: 0.75rem;">
+                    <div class="user-profile-chip">
+                        <div class="user-avatar">
+                            A
+                        </div>
+                        <span style="color: #fff; font-weight: 600;">admin</span>
+                        <span class="status-pill pill-critical">
+                            admin
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <a href="/logout" class="btn-signout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </a>
+                </li>
+            
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="app-container">
+        <!-- Toast / Alert notifications -->
+        
+            
+        
+
+        
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i> SOC Workspace / Overview
+        </div>
+        <h1 class="page-title">Cloud Posture & Compliance Dashboard</h1>
+        <p class="page-subtitle">Real-time posture monitoring across Azure Resource Manager and Infrastructure as Code configurations</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="/analytics" class="btn-action btn-ghost">
+            <i class="fa-solid fa-chart-line"></i> Deep Analytics
+        </a>
+        <a href="/upload" class="btn-action btn-azure">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Ingest New Config
+        </a>
+    </div>
+</div>
+
+<!-- 4 Executive KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-azure">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Audited Configurations</div>
+            <div class="kpi-number">12</div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-critical">
+            <i class="fa-solid fa-radiation"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Critical Vulnerabilities</div>
+            <div class="kpi-number" style="color: var(--critical);">5</div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-clean">
+            <i class="fa-solid fa-shield-check"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Active CIS Controls</div>
+            <div class="kpi-number" style="color: var(--clean);">15 <span style="font-size: 0.9rem; color: var(--text-tertiary); font-weight: 500;">/ 15</span></div>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon-box kpi-icon-purple">
+            <i class="fa-regular fa-calendar-check"></i>
+        </div>
+        <div class="kpi-content">
+            <div class="kpi-label">Latest Assessment</div>
+            <div class="kpi-number" style="font-size: 1.35rem; margin-top: 0.4rem; color: #e2e8f0;">2026-11-09</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Scans Section -->
+<div class="glass-card">
+    <div class="card-title-bar">
+        <div class="card-heading">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--azure);"></i>
+            <span>Recent Configuration Audits</span>
+        </div>
+        <a href="/scan/history" class="btn-action btn-ghost" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;">
+            Full Audit Log (12) <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        </a>
+    </div>
+
+    
+    <div class="table-shell">
+        <table class="enterprise-table">
+            <thead>
+                <tr>
+                    <th>Scan Reference</th>
+                    <th>Configuration File</th>
+                    <th>Assessment Date</th>
+                    <th>Calculated Risk</th>
+                    <th>Findings Breakdown</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>
+                        <span class="code-pill">#SCAN-101</span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                            azure-prod-cluster.json
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        2026-11-09 14:30:00
+                    </td>
+                    <td>
+                        <span class="status-pill pill-critical">
+                            <i class="fa-solid fa-shield-virus"></i> Critical
+                        </span>
+                    </td>
+                    <td>
+                        
+                            <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                <span style="font-weight: 700; margin-right: 0.35rem;">8</span>
+                                <span class="status-pill pill-critical" style="padding: 0.15rem 0.45rem;">3C</span>
+                                <span class="status-pill pill-high" style="padding: 0.15rem 0.45rem;">3H</span>
+                                <span class="status-pill pill-medium" style="padding: 0.15rem 0.45rem;">2M</span>
+                                
+                            </div>
+                        
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="/scan/results/101" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Inspect Report
+                        </a>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <span class="code-pill">#SCAN-100</span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                            storage-vault.yaml
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        2026-11-09 12:15:22
+                    </td>
+                    <td>
+                        <span class="status-pill pill-high">
+                            <i class="fa-solid fa-shield-virus"></i> High
+                        </span>
+                    </td>
+                    <td>
+                        
+                            <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                <span style="font-weight: 700; margin-right: 0.35rem;">4</span>
+                                
+                                <span class="status-pill pill-high" style="padding: 0.15rem 0.45rem;">2H</span>
+                                <span class="status-pill pill-medium" style="padding: 0.15rem 0.45rem;">2M</span>
+                                
+                            </div>
+                        
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="/scan/results/100" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Inspect Report
+                        </a>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <span class="code-pill">#SCAN-99</span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                            hardened-bastion.json
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        2026-11-08 19:40:11
+                    </td>
+                    <td>
+                        <span class="status-pill pill-clean">
+                            <i class="fa-solid fa-shield-virus"></i> Clean
+                        </span>
+                    </td>
+                    <td>
+                        
+                            <span style="color: var(--clean); font-weight: 700; font-size: 0.85rem;">
+                                <i class="fa-solid fa-circle-check"></i> 0 Violations (Clean)
+                            </span>
+                        
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="/scan/results/99" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Inspect Report
+                        </a>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+    </main>
+
+    <footer class="enterprise-footer">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1240px; margin: 0 auto; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <strong>CloudGuard Security Operations Center</strong> &bull; Version 2.4.0 (Enterprise Build)
+            </div>
+            <div style="display: flex; gap: 1.5rem;">
+                <span><i class="fa-solid fa-server" style="color: var(--azure);"></i> System Design</span>
+                <span><i class="fa-solid fa-database" style="color: #a855f7;"></i> RDBMS 3NF</span>
+                <span><i class="fa-solid fa-chart-column" style="color: #eab308;"></i> DP-900 Power BI</span>
+                <span><i class="fa-solid fa-lock" style="color: var(--clean);"></i> Zero Trust</span>
+            </div>
+        </div>
+    </footer>
+
+    
+</body>
+</html>

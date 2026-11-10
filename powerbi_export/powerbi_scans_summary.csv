@@ -1,0 +1,2 @@
+scan_id,filename,scanned_at,total_findings,critical_count,high_count,medium_count,low_count,risk_score,status
+1,sample_bad.json,2026-11-09 14:05:25,13,3,4,4,2,Critical,completed

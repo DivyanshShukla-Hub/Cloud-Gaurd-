@@ -1,0 +1,23 @@
+storage:
+  allowBlobPublicAccess: true
+  supportsHttpsTrafficOnly: false
+  encryption: false
+sql:
+  firewallRules: []
+network:
+  defaultAction: Allow
+tls:
+  minimumVersion: "1.0"
+diagnostics:
+  auditLog: false
+identity:
+  mfaEnabled: false
+backup:
+  enabled: false
+cors:
+  allowedOrigins: "*"
+resource:
+  lock: false
+  tags: {}
+alerts:
+  activityLog: false

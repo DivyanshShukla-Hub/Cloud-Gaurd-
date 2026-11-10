@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Sign In — CloudGuard Security Operations{% endblock %}
+{% block content %}
+<div style="max-width: 440px; margin: 3.5rem auto 2rem auto;">
+    <div class="glass-card" style="box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 40px rgba(14, 165, 233, 0.1);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="logo-shield" style="width: 54px; height: 54px; margin: 0 auto 1rem auto; font-size: 1.6rem; border-radius: 14px;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 style="color: #fff; font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px;">Welcome to CloudGuard</h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">Enterprise Cloud Misconfiguration Audit Platform</p>
+        </div>
+
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-envelope" style="color: var(--azure);"></i> Identity Email
+                </label>
+                <input type="email" id="emailInput" name="email" class="form-control" placeholder="name@company.com" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required autofocus>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-lock" style="color: var(--azure);"></i> Account Password
+                </label>
+                <input type="password" id="passwordInput" name="password" class="form-control" placeholder="••••••••" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required>
+            </div>
+
+            <button type="submit" class="btn-action btn-azure" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; border-radius: 8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In to SOC Workspace
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+            New user? <a href="{{ url_for('auth.register') }}" style="color: var(--azure); font-weight: 600;">Create an account</a>
+        </div>
+
+        <!-- 1-Click Demo Credentials Pill -->
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(14, 165, 233, 0.05); border: 1px dashed rgba(14, 165, 233, 0.3); border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.78rem; font-weight: 700; color: var(--azure); text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-key"></i> Default Administrator
+                </span>
+                <button type="button" class="btn-action btn-ghost" style="padding: 0.2rem 0.55rem; font-size: 0.72rem;" onclick="fillCreds('admin@cloudguard.com', 'Admin@123')">
+                    Autofill Credentials
+                </button>
+            </div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; font-family: 'JetBrains Mono', monospace;">
+                Email: admin@cloudguard.com<br>
+                Password: Admin@123
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCreds(email, pw) {
+    document.getElementById('emailInput').value = email;
+    document.getElementById('passwordInput').value = pw;
+}
+</script>
+{% endblock %}

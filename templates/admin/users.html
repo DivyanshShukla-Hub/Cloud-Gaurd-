@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}User Access Governance — CloudGuard Admin{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div class="breadcrumb">
+            <i class="fa-solid fa-lock"></i> Administration / RBAC Governance
+        </div>
+        <h1 class="page-title">Identity & Access Management (IAM)</h1>
+        <p class="page-subtitle">Manage user roles (Admin, Analyst, Viewer) and activate or suspend platform access</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="{{ url_for('admin.rules') }}" class="btn-action btn-ghost"><i class="fa-solid fa-sliders"></i> Security Rules</a>
+        <a href="{{ url_for('admin.audit') }}" class="btn-action btn-ghost"><i class="fa-solid fa-file-shield"></i> System Audit</a>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div class="card-title-bar">
+        <div class="card-heading">
+            <i class="fa-solid fa-users-gear" style="color: var(--azure);"></i>
+            <span>Registered Directory Users ({{ users|length }})</span>
+        </div>
+    </div>
+
+    <div class="table-shell">
+        <table class="enterprise-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Identity Email</th>
+                    <th>Assigned Role</th>
+                    <th>Account Created</th>
+                    <th>Status</th>
+                    <th>Modify Role (RBAC)</th>
+                    <th style="text-align: right;">Access Control</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><span class="code-pill">UID-{{ u['user_id'] }}</span></td>
+                    <td>
+                        <strong style="color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="user-avatar" style="width: 22px; height: 22px; font-size: 0.65rem;">
+                                {{ u['email'][0]|upper }}
+                            </div>
+                            {{ u['email'] }}
+                        </strong>
+                    </td>
+                    <td>
+                        <span class="status-pill {% if u['role'] == 'admin' %}pill-critical{% elif u['role'] == 'analyst' %}pill-high{% else %}pill-low{% endif %}">
+                            {{ u['role'] }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                        {{ u['created_at'][:19] }}
+                    </td>
+                    <td>
+                        {% if u['is_active'] == 1 %}
+                            <span class="status-pill pill-clean"><i class="fa-solid fa-check"></i> Active</span>
+                        {% else %}
+                            <span class="status-pill pill-critical"><i class="fa-solid fa-ban"></i> Suspended</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('admin.change_role', user_id=u['user_id']) }}" method="POST" style="display: flex; gap: 0.4rem; align-items: center;">
+                            <select name="role" class="form-control" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.8rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border);">
+                                <option value="viewer" {% if u['role'] == 'viewer' %}selected{% endif %}>Viewer</option>
+                                <option value="analyst" {% if u['role'] == 'analyst' %}selected{% endif %}>Analyst</option>
+                                <option value="admin" {% if u['role'] == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                            <button type="submit" class="btn-action btn-ghost" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;">Save</button>
+                        </form>
+                    </td>
+                    <td style="text-align: right;">
+                        {% if u['user_id'] != session['user_id'] %}
+                        <form action="{{ url_for('admin.toggle_user_status', user_id=u['user_id']) }}" method="POST" style="display: inline;">
+                            {% if u['is_active'] == 1 %}
+                                <button type="submit" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="return confirm('Suspend user access for {{ u['email'] }}?');">
+                                    <i class="fa-solid fa-user-xmark"></i> Suspend
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn-action btn-azure" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                                    <i class="fa-solid fa-user-check"></i> Reactivate
+                                </button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                            <span style="color: var(--text-tertiary); font-size: 0.8rem; font-style: italic;">Active Session</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

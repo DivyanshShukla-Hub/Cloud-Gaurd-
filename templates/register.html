@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Create Account — CloudGuard{% endblock %}
+{% block content %}
+<div style="max-width: 440px; margin: 3.5rem auto 2rem auto;">
+    <div class="glass-card" style="box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 40px rgba(14, 165, 233, 0.1);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="logo-shield" style="width: 54px; height: 54px; margin: 0 auto 1rem auto; font-size: 1.6rem; border-radius: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2 style="color: #fff; font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px;">Register Identity</h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">New accounts default to Viewer role (RBAC)</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-envelope" style="color: var(--azure);"></i> Work Email
+                </label>
+                <input type="email" name="email" class="form-control" placeholder="user@company.com" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required autofocus>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-lock" style="color: var(--azure);"></i> Account Password
+                </label>
+                <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-lock" style="color: var(--azure);"></i> Confirm Password
+                </label>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Repeat password" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required>
+            </div>
+
+            <button type="submit" class="btn-action btn-azure" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; border-radius: 8px;">
+                <i class="fa-solid fa-user-check"></i> Register Account
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+            Already registered? <a href="{{ url_for('auth.login') }}" style="color: var(--azure); font-weight: 600;">Sign in here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

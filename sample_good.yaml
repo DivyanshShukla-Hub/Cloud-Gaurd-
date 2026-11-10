@@ -1,0 +1,28 @@
+storage:
+  allowBlobPublicAccess: false
+  supportsHttpsTrafficOnly: true
+  encryption: true
+sql:
+  firewallRules:
+    - "10.0.0.1"
+network:
+  defaultAction: Deny
+tls:
+  minimumVersion: "1.2"
+diagnostics:
+  auditLog: true
+identity:
+  mfaEnabled: true
+backup:
+  enabled: true
+cors:
+  allowedOrigins: "https://myapp.com"
+resource:
+  lock: true
+  tags:
+    env: production
+    owner: team
+alerts:
+  activityLog: true
+rbac:
+  adminScope: resourceGroup
