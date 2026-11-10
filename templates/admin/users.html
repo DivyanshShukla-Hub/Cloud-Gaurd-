@@ -1,99 +1,124 @@
 {% extends "base.html" %}
 {% block title %}User Access Governance — CloudGuard Admin{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-lock"></i> Administration / RBAC Governance
-        </div>
-        <h1 class="page-title">Identity & Access Management (IAM)</h1>
-        <p class="page-subtitle">Manage user roles (Admin, Analyst, Viewer) and activate or suspend platform access</p>
-    </div>
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="{{ url_for('admin.rules') }}" class="btn-action btn-ghost"><i class="fa-solid fa-sliders"></i> Security Rules</a>
-        <a href="{{ url_for('admin.audit') }}" class="btn-action btn-ghost"><i class="fa-solid fa-file-shield"></i> System Audit</a>
-    </div>
-</div>
+<div class="flex flex-col w-full gap-6">
 
-<div class="glass-card">
-    <div class="card-title-bar">
-        <div class="card-heading">
-            <i class="fa-solid fa-users-gear" style="color: var(--azure);"></i>
-            <span>Registered Directory Users ({{ users|length }})</span>
+    <!-- Operational Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-lock text-xs text-secondary"></i>
+                <span>ADMINISTRATION // RBAC_GOVERNANCE</span>
+            </div>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Identity &amp; Access Management</h1>
+            <p class="font-mono text-xs text-on-surface-variant">Manage user roles (Admin, Analyst, Viewer) and activate or suspend platform access</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{{ url_for('admin.rules') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-sliders text-xs text-secondary"></i>
+                <span>Security Rules</span>
+            </a>
+            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-file-shield text-xs text-secondary"></i>
+                <span>System Audit</span>
+            </a>
         </div>
     </div>
 
-    <div class="table-shell">
-        <table class="enterprise-table">
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Identity Email</th>
-                    <th>Assigned Role</th>
-                    <th>Account Created</th>
-                    <th>Status</th>
-                    <th>Modify Role (RBAC)</th>
-                    <th style="text-align: right;">Access Control</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for u in users %}
-                <tr>
-                    <td><span class="code-pill">UID-{{ u['user_id'] }}</span></td>
-                    <td>
-                        <strong style="color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="user-avatar" style="width: 22px; height: 22px; font-size: 0.65rem;">
-                                {{ u['email'][0]|upper }}
+    <!-- Users Table Card -->
+    <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
+        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-primary/20 text-on-surface dark:text-primary border border-outline dark:border-primary flex items-center justify-center">
+                    <i class="fa-solid fa-users-gear text-sm"></i>
+                </div>
+                <div class="font-headline font-black text-sm uppercase tracking-wider text-on-surface">
+                    Registered Directory Users ({{ users|length }})
+                </div>
+            </div>
+            <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase">ROOT_IAM_CONSOLE</span>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
+                        <th class="py-3 px-4 border-r border-outline" scope="col">User ID</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Identity Email</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Assigned Role</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Account Created</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Status</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Modify Role (RBAC)</th>
+                        <th class="py-3 px-4 text-right" scope="col">Access Control</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body text-sm divide-y divide-outline">
+                    {% for u in users %}
+                    <tr class="hover:bg-primary/10 transition-colors bg-surface-container/60">
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="font-mono text-xs font-bold px-2 py-0.5 bg-surface-container-high border border-outline text-secondary">UID-{{ u['user_id'] }}</span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 bg-primary text-black dark:text-white border border-outline dark:border-primary flex items-center justify-center font-mono text-xs font-black flex-shrink-0">
+                                    {{ u['email'][0]|upper }}
+                                </div>
+                                <span class="font-mono text-xs font-bold text-on-surface">{{ u['email'] }}</span>
                             </div>
-                            {{ u['email'] }}
-                        </strong>
-                    </td>
-                    <td>
-                        <span class="status-pill {% if u['role'] == 'admin' %}pill-critical{% elif u['role'] == 'analyst' %}pill-high{% else %}pill-low{% endif %}">
-                            {{ u['role'] }}
-                        </span>
-                    </td>
-                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
-                        {{ u['created_at'][:19] }}
-                    </td>
-                    <td>
-                        {% if u['is_active'] == 1 %}
-                            <span class="status-pill pill-clean"><i class="fa-solid fa-check"></i> Active</span>
-                        {% else %}
-                            <span class="status-pill pill-critical"><i class="fa-solid fa-ban"></i> Suspended</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <form action="{{ url_for('admin.change_role', user_id=u['user_id']) }}" method="POST" style="display: flex; gap: 0.4rem; align-items: center;">
-                            <select name="role" class="form-control" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.8rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border);">
-                                <option value="viewer" {% if u['role'] == 'viewer' %}selected{% endif %}>Viewer</option>
-                                <option value="analyst" {% if u['role'] == 'analyst' %}selected{% endif %}>Analyst</option>
-                                <option value="admin" {% if u['role'] == 'admin' %}selected{% endif %}>Admin</option>
-                            </select>
-                            <button type="submit" class="btn-action btn-ghost" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;">Save</button>
-                        </form>
-                    </td>
-                    <td style="text-align: right;">
-                        {% if u['user_id'] != session['user_id'] %}
-                        <form action="{{ url_for('admin.toggle_user_status', user_id=u['user_id']) }}" method="POST" style="display: inline;">
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="inline-flex items-center px-2 py-0.5 border font-mono text-xs font-black uppercase tracking-wider {% if u['role'] == 'admin' %}border-[#e11d48] bg-[#e11d48]/15 text-[#e11d48] dark:border-primary dark:bg-primary/20 dark:text-primary{% elif u['role'] == 'analyst' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b]{% else %}border-secondary bg-secondary/20 text-secondary{% endif %}">
+                                {{ u['role'] }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap font-mono text-xs text-on-surface-variant border-r border-outline">
+                            {{ u['created_at'][:19] }}
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
                             {% if u['is_active'] == 1 %}
-                                <button type="submit" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="return confirm('Suspend user access for {{ u['email'] }}?');">
-                                    <i class="fa-solid fa-user-xmark"></i> Suspend
-                                </button>
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#10b981] bg-[#10b981]/20 text-[#10b981] font-mono text-xs font-black uppercase">
+                                    <i class="fa-solid fa-check text-[10px]"></i> Active
+                                </span>
                             {% else %}
-                                <button type="submit" class="btn-action btn-azure" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
-                                    <i class="fa-solid fa-user-check"></i> Reactivate
-                                </button>
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#e11d48] dark:border-primary bg-[#e11d48]/15 dark:bg-primary/20 text-[#e11d48] dark:text-primary font-mono text-xs font-black uppercase">
+                                    <i class="fa-solid fa-ban text-[10px]"></i> Suspended
+                                </span>
                             {% endif %}
-                        </form>
-                        {% else %}
-                            <span style="color: var(--text-tertiary); font-size: 0.8rem; font-style: italic;">Active Session</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <form action="{{ url_for('admin.change_role', user_id=u['user_id']) }}" method="POST" class="flex items-center gap-2">
+                                <select name="role" class="px-2.5 py-1 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs font-bold focus:border-secondary focus:ring-0 focus:outline-none">
+                                    <option value="viewer" {% if u['role'] == 'viewer' %}selected{% endif %}>Viewer</option>
+                                    <option value="analyst" {% if u['role'] == 'analyst' %}selected{% endif %}>Analyst</option>
+                                    <option value="admin" {% if u['role'] == 'admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                                <button type="submit" class="px-2.5 py-1 bg-surface-container-low hover:bg-secondary text-on-surface hover:text-black font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all cursor-pointer">
+                                    Save
+                                </button>
+                            </form>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap text-right">
+                            {% if u['user_id'] != session['user_id'] %}
+                            <form action="{{ url_for('admin.toggle_user_status', user_id=u['user_id']) }}" method="POST" class="inline">
+                                {% if u['is_active'] == 1 %}
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-low hover:bg-[#e11d48] dark:hover:bg-primary text-[#e11d48] dark:text-primary hover:text-white font-headline font-bold text-xs uppercase border border-[#e11d48] dark:border-primary transition-all cursor-pointer" onclick="return confirm('Suspend user access for {{ u['email'] }}?');">
+                                        <i class="fa-solid fa-user-xmark text-[11px]"></i> Suspend
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-bold text-xs uppercase border border-outline dark:border-primary transition-all cursor-pointer">
+                                        <i class="fa-solid fa-user-check text-[11px]"></i> Reactivate
+                                    </button>
+                                {% endif %}
+                            </form>
+                            {% else %}
+                                <span class="font-mono text-xs text-on-surface-variant italic uppercase">Active Session</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

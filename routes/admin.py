@@ -23,12 +23,21 @@ def change_role(user_id):
         flash("Invalid role specified.", "danger")
         return redirect(url_for("admin.users"))
 
+    if user_id == session["user_id"] and new_role != "admin":
+        flash("You cannot demote your own active admin session.", "danger")
+        return redirect(url_for("admin.users"))
+
     db = get_db()
+    target_user = db.execute("SELECT user_id, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    if not target_user:
+        flash("User not found.", "danger")
+        return redirect(url_for("admin.users"))
+
     db.execute("UPDATE users SET role = ? WHERE user_id = ?", (new_role, user_id))
     db.commit()
 
-    log_audit(session["user_id"], "CHANGE_ROLE", f"User #{user_id} role set to {new_role}")
-    flash(f"User role updated to {new_role}.", "success")
+    log_audit(session["user_id"], "CHANGE_ROLE", f"User #{user_id} ({target_user['email']}) role set to {new_role}")
+    flash(f"User role for {target_user['email']} updated to {new_role}.", "success")
     return redirect(url_for("admin.users"))
 
 
@@ -41,13 +50,16 @@ def toggle_user_status(user_id):
 
     db = get_db()
     user = db.execute("SELECT is_active, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if user:
-        new_status = 0 if user["is_active"] == 1 else 1
-        db.execute("UPDATE users SET is_active = ? WHERE user_id = ?", (new_status, user_id))
-        db.commit()
-        status_name = "Reactivated" if new_status == 1 else "Deactivated"
-        log_audit(session["user_id"], "USER_STATUS_CHANGE", f"{status_name} user #{user_id} ({user['email']})")
-        flash(f"Account for {user['email']} has been {status_name.lower()}.", "info")
+    if not user:
+        flash("User not found.", "danger")
+        return redirect(url_for("admin.users"))
+
+    new_status = 0 if user["is_active"] == 1 else 1
+    db.execute("UPDATE users SET is_active = ? WHERE user_id = ?", (new_status, user_id))
+    db.commit()
+    status_name = "Reactivated" if new_status == 1 else "Deactivated"
+    log_audit(session["user_id"], "USER_STATUS_CHANGE", f"{status_name} user #{user_id} ({user['email']})")
+    flash(f"Account for {user['email']} has been {status_name.lower()}.", "info")
 
     return redirect(url_for("admin.users"))
 
@@ -70,13 +82,16 @@ def rules():
 def toggle_rule(rule_id):
     db = get_db()
     rule = db.execute("SELECT is_active, rule_name FROM rules WHERE rule_id = ?", (rule_id,)).fetchone()
-    if rule:
-        new_active = 0 if rule["is_active"] == 1 else 1
-        db.execute("UPDATE rules SET is_active = ? WHERE rule_id = ?", (new_active, rule_id))
-        db.commit()
-        action_name = "Enabled" if new_active == 1 else "Disabled"
-        log_audit(session["user_id"], "RULE_TOGGLE", f"{action_name} rule #{rule_id} ({rule['rule_name']})")
-        flash(f"Rule #{rule_id} is now {action_name.lower()}.", "info")
+    if not rule:
+        flash("Rule not found.", "danger")
+        return redirect(url_for("admin.rules"))
+
+    new_active = 0 if rule["is_active"] == 1 else 1
+    db.execute("UPDATE rules SET is_active = ? WHERE rule_id = ?", (new_active, rule_id))
+    db.commit()
+    action_name = "Enabled" if new_active == 1 else "Disabled"
+    log_audit(session["user_id"], "RULE_TOGGLE", f"{action_name} rule #{rule_id} ({rule['rule_name']})")
+    flash(f"Rule #{rule_id} is now {action_name.lower()}.", "info")
 
     return redirect(url_for("admin.rules"))
 

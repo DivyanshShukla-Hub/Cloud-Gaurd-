@@ -88,6 +88,7 @@
             html.classList.add('dark');
             localStorage.setItem('cloudguard_theme', 'dark');
         }
+        window.dispatchEvent(new CustomEvent('cloudguard:themechange'));
     }
 </script>
 <style>
@@ -143,14 +144,18 @@
     transition: padding-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .sidebar-icon-collapsed {
+    display: none !important;
+  }
+
   /* When collapsed: width shrinks to 4.5rem (72px) */
   html.sidebar-collapsed #mainSidebar {
     width: 4.5rem !important;
   }
-  html.sidebar-collapsed #mainHeader {
+  html.sidebar-collapsed #mainHeader.has-sidebar {
     left: 4.5rem !important;
   }
-  html.sidebar-collapsed #contentWrapper {
+  html.sidebar-collapsed #contentWrapper.has-sidebar {
     padding-left: 4.5rem !important;
   }
 
@@ -161,14 +166,22 @@
     display: none !important;
   }
 
+  /* Show admin subsection icons cleanly in collapsed mode */
+  html.sidebar-collapsed .sidebar-icon-collapsed {
+    display: inline-block !important;
+  }
+
   /* Center the icons when collapsed */
   html.sidebar-collapsed .sidebar-nav-item {
     justify-content: center !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+    border-left-width: 1px !important;
   }
   html.sidebar-collapsed .sidebar-nav-item i {
-    font-size: 1.15rem !important;
+    font-size: 1.05rem !important;
     margin: 0 !important;
   }
 
@@ -183,9 +196,9 @@
     top: 50%;
     transform: translateY(-50%);
     margin-left: 0.75rem;
-    background: #181b36;
-    color: #e8e0f0;
-    border: 1px solid #302d4a;
+    background: var(--bg-surface-high);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
     padding: 0.35rem 0.65rem;
     font-size: 0.75rem;
     font-family: 'Space Grotesk', sans-serif;
@@ -193,7 +206,6 @@
     white-space: nowrap;
     z-index: 100;
     text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
 </style>
 </head>
@@ -206,32 +218,32 @@
     <!-- Sidebar Brand Header with Collapse Toggle Button -->
     <div class="h-16 px-3 flex items-center justify-between border-b-2 border-outline bg-surface-container-low">
         <a href="{{ url_for('scans.dashboard') }}" class="flex items-center gap-2 overflow-hidden">
-            <div class="w-8 h-8 bg-primary text-black dark:text-white flex items-center justify-center font-headline font-bold text-lg border border-primary flex-shrink-0">
+            <div class="w-8 h-8 bg-primary text-black dark:text-white flex items-center justify-center font-headline font-bold text-lg border border-outline flex-shrink-0">
                 CG
             </div>
             <span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface sidebar-text whitespace-nowrap">CloudGuard</span>
         </a>
-        <button onclick="toggleSidebar()" class="w-7 h-7 flex items-center justify-center bg-surface-container hover:bg-primary text-on-surface hover:text-white border border-outline hover:border-primary transition-all text-xs font-mono" title="Toggle Sidebar">
+        <button onclick="toggleSidebar()" class="w-7 h-7 flex items-center justify-center bg-surface-container hover:bg-primary text-on-surface hover:text-black dark:hover:text-white border border-outline hover:border-primary transition-all text-xs font-mono" title="Toggle Sidebar">
             <i class="fa-solid fa-bars"></i>
         </button>
     </div>
 
     <!-- Nav Items with Tooltips for Collapsed View -->
     <nav class="flex flex-col gap-1.5 p-2">
-        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-bold border transition-all {% if request.endpoint == 'scans.dashboard' %}bg-primary text-black dark:text-white border-primary shadow-[0_0_10px_rgba(255,45,120,0.25)]{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.dashboard') }}" data-tooltip="Dashboard">
-            <i class="fa-solid fa-house w-4 text-center text-sm flex-shrink-0"></i>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-bold border transition-all {% if request.endpoint == 'scans.dashboard' %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.dashboard') }}" data-tooltip="Dashboard">
+            <i class="fa-solid fa-house w-4 text-center text-sm flex-shrink-0 {% if request.endpoint != 'scans.dashboard' %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Dashboard</span>
         </a>
-        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}" data-tooltip="Upload Scan">
-            <i class="fa-solid fa-upload w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}" data-tooltip="Upload Scan">
+            <i class="fa-solid fa-upload w-4 text-center text-sm flex-shrink-0 {% if request.endpoint != 'scans.upload' %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Upload Scan</span>
         </a>
-        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.history' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}" data-tooltip="Scan History">
-            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint in ['scans.history', 'scans.results'] %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}" data-tooltip="Scan History">
+            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm flex-shrink-0 {% if request.endpoint not in ['scans.history', 'scans.results'] %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Scan History</span>
         </a>
-        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'analytics.analytics' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('analytics.analytics') }}" data-tooltip="Analytics">
-            <i class="fa-solid fa-chart-column w-4 text-center text-sm text-secondary flex-shrink-0"></i>
+        <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'analytics.analytics' %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('analytics.analytics') }}" data-tooltip="Analytics">
+            <i class="fa-solid fa-chart-column w-4 text-center text-sm flex-shrink-0 {% if request.endpoint != 'analytics.analytics' %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Analytics</span>
         </a>
 
@@ -243,20 +255,20 @@
                     <i class="fa-solid fa-gear text-xs text-primary"></i>
                     <span class="font-headline font-bold text-xs uppercase tracking-wider text-on-surface">Admin</span>
                 </div>
-                <span class="font-mono text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary border border-primary font-bold">ROOT</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.5 bg-primary/20 text-on-surface dark:text-primary border border-primary font-bold">ROOT</span>
             </div>
             <div class="flex flex-col gap-1 mt-1">
-                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.users' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-secondary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.users') }}" data-tooltip="User Management">
-                    <i class="fa-solid fa-users text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
-                    <span class="sidebar-text">User Management</span>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.users' %}border-primary text-on-surface font-bold bg-surface-container{% else %}border-outline text-on-surface-variant hover:border-secondary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.users') }}" data-tooltip="User Management">
+                    <i class="fa-solid fa-users text-xs w-4 text-center sidebar-icon-collapsed {% if request.endpoint == 'admin.users' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                    <span class="sidebar-text whitespace-nowrap">User Management</span>
                 </a>
-                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.rules' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.rules') }}" data-tooltip="Security Rules">
-                    <i class="fa-solid fa-sliders text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
-                    <span class="sidebar-text">Security Rules</span>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.rules' %}border-primary text-on-surface font-bold bg-surface-container{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.rules') }}" data-tooltip="Security Rules">
+                    <i class="fa-solid fa-sliders text-xs w-4 text-center sidebar-icon-collapsed {% if request.endpoint == 'admin.rules' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                    <span class="sidebar-text whitespace-nowrap">Security Rules</span>
                 </a>
-                <a class="sidebar-nav-item flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.audit' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.audit') }}" data-tooltip="Audit Log">
-                    <i class="fa-solid fa-file-shield text-xs w-4 text-center sm:hidden md:hidden lg:hidden sidebar-icon-collapsed"></i>
-                    <span class="sidebar-text">Audit Log</span>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.audit' %}border-primary text-on-surface font-bold bg-surface-container{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.audit') }}" data-tooltip="Audit Log">
+                    <i class="fa-solid fa-file-shield text-xs w-4 text-center sidebar-icon-collapsed {% if request.endpoint == 'admin.audit' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                    <span class="sidebar-text whitespace-nowrap">Audit Log</span>
                 </a>
             </div>
         </div>
@@ -268,7 +280,7 @@
 <div class="p-2.5 m-2 bg-surface-container border border-outline text-center">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 mx-auto">
-            <span class="w-2.5 h-2.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse flex-shrink-0"></span>
+            <span class="w-2.5 h-2.5 bg-secondary animate-pulse flex-shrink-0"></span>
             <span class="font-headline text-xs uppercase font-bold tracking-wide text-on-surface sidebar-text">Active</span>
         </div>
         <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 bg-surface-container-high text-secondary border border-outline sidebar-badge">v2.4</span>
@@ -279,32 +291,31 @@
 {% endif %}
 
 <!-- Main Content Layout wrapper -->
-<div id="contentWrapper" class="{% if session.get('user_id') %}pl-64{% else %}w-full{% endif %}">
+<div id="contentWrapper" class="{% if session.get('user_id') %}pl-64 has-sidebar{% else %}w-full{% endif %}">
     <!-- Top Header -->
-    <header id="mainHeader" class="fixed top-0 {% if session.get('user_id') %}left-64{% else %}left-0{% endif %} right-0 h-16 bg-surface-container-lowest border-b-2 border-outline z-40 flex items-center justify-between px-6">
+    <header id="mainHeader" class="fixed top-0 {% if session.get('user_id') %}left-64 has-sidebar{% else %}left-0{% endif %} right-0 h-16 bg-surface-container-lowest border-b-2 border-outline z-40 flex items-center justify-between px-6">
         <div class="flex items-center gap-3 font-headline text-sm font-bold">
             {% if session.get('user_id') %}
-            <!-- Fast Sidebar Toggle in Top Bar as well -->
             <button onclick="toggleSidebar()" class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-high border border-outline text-on-surface" title="Collapse / Expand Sidebar">
                 <i class="fa-solid fa-bars-staggered text-xs"></i>
             </button>
             {% endif %}
-            <span class="flex items-center gap-2 px-2.5 py-1 bg-primary text-black dark:text-white border border-primary uppercase text-xs shadow-[0_0_8px_rgba(255,45,120,0.3)]">
+            <a href="{{ url_for('scans.index') }}" class="flex items-center gap-2 px-2.5 py-1 bg-primary text-black dark:text-white border border-outline dark:border-primary uppercase text-xs font-bold">
                 <i class="fa-solid fa-shield-halved"></i> CloudGuard Core
-            </span>
+            </a>
             <span class="text-outline font-black">/</span>
             <span class="uppercase tracking-wide text-on-surface hidden sm:inline">Operational Console</span>
         </div>
         <div class="flex items-center gap-3">
             <!-- Theme Toggle Button -->
             <button onclick="toggleTheme()" class="font-mono text-xs px-2.5 py-1.5 bg-surface-container hover:bg-surface-container-high border border-outline uppercase font-bold transition-all text-on-surface" title="Toggle Light Bauhaus / Dark Tokyo">
-                <span class="dark:hidden">☾ Dark (Tokyo)</span>
-                <span class="hidden dark:inline">☼ Light (Bauhaus)</span>
+                <span class="dark:hidden"><i class="fa-solid fa-moon mr-1"></i> Dark (Tokyo)</span>
+                <span class="hidden dark:inline"><i class="fa-solid fa-sun mr-1"></i> Light (Bauhaus)</span>
             </button>
 
             {% if session.get('user_id') %}
             <div class="flex items-center gap-2.5 bg-surface-container px-3 py-1.5 border border-outline">
-                <div class="w-7 h-7 bg-primary text-black dark:text-white flex items-center justify-center font-bold text-xs border border-primary font-mono">
+                <div class="w-7 h-7 bg-primary text-black dark:text-white flex items-center justify-center font-bold text-xs border border-outline dark:border-primary font-mono">
                     {{ session.get('email', 'U')[0]|upper }}
                 </div>
                 <div class="flex flex-col text-left hidden md:flex">
@@ -312,16 +323,16 @@
                     <span class="font-mono text-[10px] text-secondary font-medium uppercase">SecOps Team Alpha</span>
                 </div>
             </div>
-            <span class="font-mono text-xs px-2 py-1 bg-surface-container-high text-primary font-black border border-primary uppercase hidden sm:inline-block">
+            <span class="font-mono text-xs px-2 py-1 bg-surface-container-high text-on-surface dark:text-primary font-black border border-outline dark:border-primary uppercase hidden sm:inline-block">
                 {{ session.get('role', 'viewer') }}
             </span>
-            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low hover:bg-primary text-on-surface hover:text-white border border-outline hover:border-primary transition-all font-headline font-bold text-xs uppercase">
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low hover:bg-primary text-on-surface hover:text-black dark:hover:text-white border border-outline hover:border-primary transition-all font-headline font-bold text-xs uppercase">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="hidden sm:inline">Logout</span>
             </a>
             {% else %}
-            <a href="{{ url_for('auth.login') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 border border-outline hover:bg-surface-container">Sign In</a>
-            <a href="{{ url_for('auth.register') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 bg-primary text-black dark:text-white border border-primary">Register</a>
+            <a href="{{ url_for('auth.login') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 border border-outline text-on-surface hover:bg-surface-container">Sign In</a>
+            <a href="{{ url_for('auth.register') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 bg-primary text-black dark:text-white border border-outline dark:border-primary">Register</a>
             {% endif %}
         </div>
     </header>
@@ -333,20 +344,24 @@
             {% if messages %}
                 <div class="w-full mb-6 space-y-3">
                     {% for category, message in messages %}
-                        <div class="w-full bg-surface-container border-2 border-tertiary p-4 flex items-center justify-between transition-all">
+                        {% set is_danger = category in ['danger', 'error'] %}
+                        {% set is_success = category == 'success' %}
+                        <div class="w-full bg-surface-container border-2 {% if is_danger %}border-[#e11d48] dark:border-[#ff2d78]{% elif is_success %}border-[#10b981]{% else %}border-tertiary{% endif %} p-4 flex items-center justify-between transition-all">
                             <div class="flex items-center gap-3.5">
-                                <div class="w-9 h-9 bg-tertiary text-black border border-tertiary flex items-center justify-center font-bold text-lg flex-shrink-0">
-                                    <i class="fa-solid fa-bell"></i>
+                                <div class="w-9 h-9 {% if is_danger %}bg-[#e11d48] dark:bg-[#ff2d78] text-white border-[#e11d48]{% elif is_success %}bg-[#10b981] text-black border-[#10b981]{% else %}bg-tertiary text-black border-tertiary{% endif %} border flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                    <i class="fa-solid {% if is_danger %}fa-triangle-exclamation{% elif is_success %}fa-check{% else %}fa-bell{% endif %}"></i>
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                                    <span class="font-headline font-black text-tertiary text-base uppercase tracking-tight">Notification</span>
-                                    <span class="hidden sm:inline font-mono text-tertiary/70 font-bold">::</span>
+                                    <span class="font-headline font-black {% if is_danger %}text-[#e11d48] dark:text-[#ff2d78]{% elif is_success %}text-[#10b981]{% else %}text-tertiary{% endif %} text-base uppercase tracking-tight">
+                                        {% if is_danger %}Alert{% elif is_success %}Verified{% else %}Notification{% endif %}
+                                    </span>
+                                    <span class="hidden sm:inline font-mono text-on-surface-variant font-bold">::</span>
                                     <p class="font-body text-sm text-on-surface font-semibold">
                                         {{ message }}
                                     </p>
                                 </div>
                             </div>
-                            <button onclick="this.parentElement.remove()" class="w-8 h-8 flex items-center justify-center bg-surface text-tertiary border border-tertiary/50 hover:bg-tertiary hover:text-black transition-all">
+                            <button onclick="this.parentElement.remove()" class="w-8 h-8 flex items-center justify-center bg-surface text-on-surface border border-outline hover:bg-surface-container-high transition-all">
                                 <i class="fa-solid fa-xmark text-sm font-bold"></i>
                             </button>
                         </div>

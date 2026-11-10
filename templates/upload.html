@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
         <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-2 text-primary font-mono text-xs font-bold uppercase tracking-wider">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
                 <i class="fa-solid fa-terminal text-xs text-secondary"></i>
                 <span>INGESTION // CIS_BENCHMARK_v15</span>
             </div>
@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- File selected preview chip -->
-                    <div id="filePreviewCard" class="hidden border-2 border-secondary bg-surface-container p-3 max-w-sm mx-auto text-left mt-4 shadow-[0_0_12px_rgba(0,243,255,0.2)]">
+                    <div id="filePreviewCard" class="hidden border-2 border-secondary bg-surface-container p-3 max-w-sm mx-auto text-left mt-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <i class="fa-solid fa-file-code text-xl text-secondary"></i>
@@ -67,7 +67,7 @@
                     </div>
 
                     <!-- Execute Security Audit High-Impact Button -->
-                    <button type="submit" id="submitBtn" class="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary/90 text-white font-headline font-black text-sm uppercase tracking-wider border-2 border-primary shadow-[0_0_15px_rgba(255,45,120,0.5)] transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+                    <button type="submit" id="submitBtn" class="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-sm uppercase tracking-wider border-2 border-outline dark:border-primary transition-all flex items-center justify-center gap-2.5 cursor-pointer">
                         <i class="fa-solid fa-bolt text-sm"></i>
                         <span>EXECUTE SECURITY AUDIT &rarr;</span>
                     </button>
@@ -81,25 +81,25 @@
             <div class="bg-surface-container border-2 border-outline p-5">
                 <div class="flex items-center justify-between mb-3 border-b-2 border-outline pb-2">
                     <div class="flex items-center gap-2 font-headline font-bold text-xs uppercase tracking-wider text-on-surface">
-                        <i class="fa-solid fa-flask text-primary"></i>
+                        <i class="fa-solid fa-flask text-[#e11d48] dark:text-primary"></i>
                         <span>TEST MANIFESTS // PRELOADS</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary border border-primary font-bold">FAST_TEST</span>
+                    <span class="font-mono text-[10px] px-1.5 py-0.5 bg-[#e11d48]/15 dark:bg-primary/20 text-[#e11d48] dark:text-primary border border-[#e11d48] dark:border-primary font-bold">FAST_TEST</span>
                 </div>
                 <p class="font-body text-xs text-on-surface-variant mb-4">
                     Load pre-configured test fixtures to instantly benchmark the 15 security controls:
                 </p>
 
                 <div class="space-y-3">
-                    <button type="button" onclick="loadSample('bad')" class="w-full text-left p-3 border-2 border-primary/50 hover:border-primary bg-surface-container-low hover:bg-surface-container transition flex items-center justify-between group">
+                    <button type="button" onclick="loadSample('bad')" class="w-full text-left p-3 border-2 border-[#e11d48]/50 dark:border-primary/50 hover:border-[#e11d48] dark:hover:border-primary bg-surface-container-low hover:bg-surface-container transition flex items-center justify-between group">
                         <div>
-                            <div class="font-mono font-bold text-xs uppercase text-primary flex items-center gap-1.5">
+                            <div class="font-mono font-bold text-xs uppercase text-[#e11d48] dark:text-primary flex items-center gap-1.5">
                                 <i class="fa-solid fa-triangle-exclamation text-xs"></i>
                                 <span>sample_bad.json</span>
                             </div>
                             <div class="font-mono text-[11px] text-on-surface-variant mt-1">Triggers Critical &amp; High findings</div>
                         </div>
-                        <span class="px-2.5 py-1 bg-primary text-white font-mono text-xs font-bold uppercase border border-primary">LOAD</span>
+                        <span class="px-2.5 py-1 bg-[#e11d48] dark:bg-primary text-white font-mono text-xs font-bold uppercase border border-[#e11d48] dark:border-primary">LOAD</span>
                     </button>
 
                     <button type="button" onclick="loadSample('good')" class="w-full text-left p-3 border-2 border-[#10b981]/50 hover:border-[#10b981] bg-surface-container-low hover:bg-surface-container transition flex items-center justify-between group">
@@ -124,11 +124,11 @@
                 <div class="space-y-2 font-mono text-xs text-on-surface-variant">
                     <div class="flex justify-between border-b border-outline/50 pb-1.5">
                         <span>Storage &amp; Encryption</span>
-                        <span class="text-primary font-bold">4 Rules</span>
+                        <span class="text-[#e11d48] dark:text-primary font-bold">4 Rules</span>
                     </div>
                     <div class="flex justify-between border-b border-outline/50 pb-1.5">
                         <span>Network &amp; DB Firewall</span>
-                        <span class="text-[#f59e0b] font-bold">3 Rules</span>
+                        <span class="text-[#d97706] dark:text-[#f59e0b] font-bold">3 Rules</span>
                     </div>
                     <div class="flex justify-between border-b border-outline/50 pb-1.5">
                         <span>Identity, MFA &amp; RBAC</span>
@@ -136,7 +136,7 @@
                     </div>
                     <div class="flex justify-between pb-1">
                         <span>Logging &amp; Governance</span>
-                        <span class="text-[#ffe04a] font-bold">5 Rules</span>
+                        <span class="text-tertiary font-bold">5 Rules</span>
                     </div>
                 </div>
             </div>
@@ -184,12 +184,13 @@ function updatePreview(file) {
     previewCard.classList.remove('hidden');
     statusText.textContent = 'READY_TO_AUDIT :: ' + file.name;
     statusText.classList.remove('text-secondary');
-    statusText.classList.add('text-primary');
+    statusText.classList.add('text-[#e11d48]', 'dark:text-primary');
 }
 
 async function loadSample(type) {
     try {
         const res = await fetch('/sample_' + type + '.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const blob = await res.blob();
         const file = new File([blob], 'sample_' + type + '.json', { type: 'application/json' });
         const container = new DataTransfer();

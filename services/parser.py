@@ -12,8 +12,11 @@ def parse_config(filepath):
 
     ext = os.path.splitext(filepath)[1].lower()
 
-    with open(filepath, "r", encoding="utf-8") as f:
-        raw = f.read()
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            raw = f.read()
+    except UnicodeDecodeError:
+        raise ParseError("Uploaded file must be valid UTF-8 text.")
 
     if not raw.strip():
         raise ParseError("Uploaded file is empty.")
@@ -21,10 +24,10 @@ def parse_config(filepath):
     try:
         if ext == ".json":
             data = json.loads(raw)
-            return data, "JSON"
+            ftype = "JSON"
         elif ext in (".yaml", ".yml"):
             data = yaml.safe_load(raw)
-            return data, "YAML"
+            ftype = "YAML"
         else:
             raise ParseError(f"Unsupported file type: {ext}")
     except json.JSONDecodeError as e:
@@ -35,4 +38,4 @@ def parse_config(filepath):
     if not isinstance(data, dict):
         raise ParseError("Config must be a JSON/YAML object (not a list or scalar).")
 
-    return data, ext.lstrip(".")
+    return data, ftype

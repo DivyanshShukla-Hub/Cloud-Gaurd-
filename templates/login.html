@@ -1,53 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Sign In — CloudGuard Security Operations{% endblock %}
 {% block content %}
-<div class="max-w-md mx-auto my-12">
-    <div class="glass-card">
-        <div class="text-center mb-6">
-            <div class="logo-shield w-14 h-14 mx-auto mb-3 text-2xl font-bold">
+<div class="max-w-md mx-auto my-8">
+    <div class="bg-surface-container border-2 border-outline p-6 sm:p-8">
+        <div class="text-center mb-6 border-b-2 border-outline pb-5">
+            <div class="w-14 h-14 mx-auto mb-3 bg-primary text-black dark:text-white border-2 border-outline dark:border-primary flex items-center justify-center text-2xl font-bold">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2 class="text-2xl font-extrabold uppercase font-mono tracking-tight">Identity Authentication</h2>
-            <p class="text-xs opacity-75 font-mono mt-1">// CIS_OPS_TERMINAL_ACCESS</p>
+            <h2 class="font-headline text-2xl font-black uppercase tracking-tight text-on-surface">Identity Authentication</h2>
+            <p class="font-mono text-xs text-secondary font-bold mt-1">// CIS_OPS_TERMINAL_ACCESS</p>
         </div>
 
         <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-4">
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fa-solid fa-envelope mr-1"></i> Identity Email
+            <div>
+                <label class="block font-mono text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                    <i class="fa-solid fa-envelope mr-1 text-secondary"></i> Identity Email
                 </label>
-                <input type="email" id="emailInput" name="email" class="form-control" placeholder="admin@cloudguard.com" required autofocus>
+                <input type="email" id="emailInput" name="email" class="w-full px-3.5 py-2.5 bg-surface-container-lowest border-2 border-outline text-on-surface font-mono text-sm focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/50" placeholder="admin@cloudguard.com" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fa-solid fa-lock mr-1"></i> Passphrase
+            <div>
+                <label class="block font-mono text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                    <i class="fa-solid fa-lock mr-1 text-secondary"></i> Passphrase
                 </label>
-                <input type="password" id="passwordInput" name="password" class="form-control" placeholder="••••••••" required>
+                <input type="password" id="passwordInput" name="password" class="w-full px-3.5 py-2.5 bg-surface-container-lowest border-2 border-outline text-on-surface font-mono text-sm focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/50" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-action btn-azure w-full justify-center py-3">
-                <i class="fa-solid fa-right-to-bracket"></i> Authenticate &rarr;
+            <button type="submit" class="w-full py-3 px-4 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-sm uppercase tracking-wider border-2 border-outline dark:border-primary transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Authenticate &rarr;</span>
             </button>
         </form>
 
-        <div class="text-center mt-6 text-xs font-mono">
-            NEW ANALYST? <a href="{{ url_for('auth.register') }}" class="font-bold underline" style="color: var(--accent-primary);">REGISTER ACCOUNT</a>
+        <div class="text-center mt-6 pt-4 border-t border-outline font-mono text-xs text-on-surface-variant">
+            NEW ANALYST?
+            <a href="{{ url_for('auth.register') }}" class="font-black underline text-[#e11d48] dark:text-primary ml-1">REGISTER ACCOUNT</a>
         </div>
 
-        <!-- 1-Click Demo Credentials Pill -->
-        <div class="mt-6 p-3 border-2 border-boundary bg-surface-subtle">
+        <!-- 1-Click Demo Credentials Box -->
+        <div class="mt-5 p-3.5 border-2 border-outline bg-surface-container-low">
             <div class="flex justify-between items-center mb-2">
-                <span class="font-mono text-xs font-bold uppercase">
-                    <i class="fa-solid fa-key mr-1"></i> ROOT ADMIN TEST
+                <span class="font-mono text-xs font-black uppercase text-on-surface flex items-center gap-1.5">
+                    <i class="fa-solid fa-key text-tertiary"></i> ROOT ADMIN TEST
                 </span>
-                <button type="button" class="btn-action btn-ghost text-xs py-1 px-2" onclick="fillCreds('admin@cloudguard.com', 'Admin@123')">
+                <button type="button" class="font-mono text-xs font-bold uppercase px-2.5 py-1 bg-surface-container hover:bg-secondary hover:text-black text-on-surface border border-outline transition-all" onclick="fillCreds('admin@cloudguard.com', 'Admin@123')">
                     Autofill
                 </button>
             </div>
-            <div class="font-mono text-xs opacity-75">
-                user: admin@cloudguard.com<br>
-                pass: Admin@123
+            <div class="font-mono text-xs text-on-surface-variant space-y-0.5">
+                <div>user: <span class="text-on-surface font-bold">admin@cloudguard.com</span></div>
+                <div>pass: <span class="text-on-surface font-bold">Admin@123</span></div>
             </div>
         </div>
     </div>
@@ -59,4 +61,4 @@ function fillCreds(email, pw) {
     document.getElementById('passwordInput').value = pw;
 }
 </script>
-{% endblock %}
+{% endblock %}

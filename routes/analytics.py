@@ -16,7 +16,7 @@ def analytics():
         """SELECT r.rule_name, r.severity, COUNT(f.finding_id) AS cnt
            FROM findings f
            JOIN rules r ON f.rule_id = r.rule_id
-           GROUP BY f.rule_id
+           GROUP BY f.rule_id, r.rule_name, r.severity
            ORDER BY cnt DESC
            LIMIT 10"""
     ).fetchall()
@@ -49,7 +49,7 @@ def analytics():
     most_triggered = db.execute(
         """SELECT r.rule_name, COUNT(*) AS cnt FROM findings f
            JOIN rules r ON f.rule_id = r.rule_id
-           GROUP BY f.rule_id ORDER BY cnt DESC LIMIT 1"""
+           GROUP BY f.rule_id, r.rule_name ORDER BY cnt DESC LIMIT 1"""
     ).fetchone()
     most_triggered_name = most_triggered["rule_name"] if most_triggered else "N/A"
 

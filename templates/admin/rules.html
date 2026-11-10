@@ -1,84 +1,106 @@
 {% extends "base.html" %}
 {% block title %}Rules Engine Controls — CloudGuard Admin{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-lock"></i> Administration / Engine Governance
-        </div>
-        <h1 class="page-title">CIS Benchmark Rules Registry</h1>
-        <p class="page-subtitle">Enable or disable specific security controls evaluated across the 15 cloud benchmark checks</p>
-    </div>
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="{{ url_for('admin.users') }}" class="btn-action btn-ghost"><i class="fa-solid fa-users"></i> Users</a>
-        <a href="{{ url_for('admin.audit') }}" class="btn-action btn-ghost"><i class="fa-solid fa-file-shield"></i> Audit</a>
-    </div>
-</div>
+<div class="flex flex-col w-full gap-6">
 
-<div class="glass-card">
-    <div class="card-title-bar">
-        <div class="card-heading">
-            <i class="fa-solid fa-sliders" style="color: var(--azure);"></i>
-            <span>Registered Security Benchmark Rules ({{ rules|length }})</span>
+    <!-- Operational Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-lock text-xs text-secondary"></i>
+                <span>ADMINISTRATION // ENGINE_GOVERNANCE</span>
+            </div>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">CIS Benchmark Rules Registry</h1>
+            <p class="font-mono text-xs text-on-surface-variant">Enable or disable specific security controls evaluated across the 15 cloud benchmark checks</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{{ url_for('admin.users') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-users text-xs text-secondary"></i>
+                <span>Users</span>
+            </a>
+            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-file-shield text-xs text-secondary"></i>
+                <span>Audit Log</span>
+            </a>
         </div>
     </div>
 
-    <div class="table-shell">
-        <table class="enterprise-table">
-            <thead>
-                <tr>
-                    <th style="width: 70px;">Control</th>
-                    <th>Rule Specification</th>
-                    <th>Domain Category</th>
-                    <th>Severity Rating</th>
-                    <th>Status</th>
-                    <th style="text-align: right;">Toggle Control</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in rules %}
-                <tr>
-                    <td><span class="code-pill">#{{ r['rule_id'] }}</span></td>
-                    <td>
-                        <strong style="color: #fff; font-size: 0.95rem;">{{ r['rule_name'] }}</strong>
-                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem; max-width: 520px;">
-                            {{ r['description'] }}
-                        </div>
-                    </td>
-                    <td>
-                        <span style="color: var(--azure); font-size: 0.82rem; font-weight: 600;">
-                            <i class="fa-solid fa-folder-tree" style="margin-right: 0.25rem;"></i> {{ r['category_name'] or 'General' }}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="status-pill pill-{{ r['severity']|lower }}">
-                            {{ r['severity'] }}
-                        </span>
-                    </td>
-                    <td>
-                        {% if r['is_active'] == 1 %}
-                            <span class="status-pill pill-clean"><i class="fa-solid fa-circle-check"></i> Active</span>
-                        {% else %}
-                            <span class="status-pill pill-critical"><i class="fa-solid fa-circle-pause"></i> Disabled</span>
-                        {% endif %}
-                    </td>
-                    <td style="text-align: right;">
-                        <form action="{{ url_for('admin.toggle_rule', rule_id=r['rule_id']) }}" method="POST" style="display: inline;">
+    <!-- Rules Table Card -->
+    <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
+        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </div>
+                <div class="font-headline font-black text-sm uppercase tracking-wider text-on-surface">
+                    Registered Security Benchmark Rules ({{ rules|length }})
+                </div>
+            </div>
+            <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase">CIS_AZURE_v1.8</span>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
+                        <th class="py-3 px-4 border-r border-outline w-20" scope="col">Control</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Rule Specification</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Domain Category</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Severity Rating</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Status</th>
+                        <th class="py-3 px-4 text-right" scope="col">Toggle Control</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body text-sm divide-y divide-outline">
+                    {% for r in rules %}
+                    <tr class="hover:bg-primary/10 transition-colors bg-surface-container/60">
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="font-mono text-xs font-bold px-2 py-0.5 bg-surface-container-high border border-outline text-secondary">#{{ r['rule_id'] }}</span>
+                        </td>
+                        <td class="py-3.5 px-4 border-r border-outline">
+                            <div class="font-headline font-black text-sm uppercase text-on-surface">{{ r['rule_name'] }}</div>
+                            <div class="font-body text-xs text-on-surface-variant mt-0.5 max-w-xl">{{ r['description'] }}</div>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="font-mono text-xs text-secondary font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-folder-tree text-[11px]"></i>
+                                <span>{{ r['category_name'] or 'General' }}</span>
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="inline-flex items-center px-2 py-0.5 border font-mono text-xs font-black uppercase tracking-wider {% if r['severity'] == 'Critical' %}border-[#e11d48] bg-[#e11d48]/15 text-[#e11d48] dark:border-primary dark:bg-primary/20 dark:text-primary{% elif r['severity'] == 'High' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b]{% elif r['severity'] == 'Medium' %}border-tertiary bg-tertiary/20 text-tertiary{% else %}border-secondary bg-secondary/20 text-secondary{% endif %}">
+                                {{ r['severity'] }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
                             {% if r['is_active'] == 1 %}
-                                <button type="submit" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                    <i class="fa-solid fa-toggle-on" style="color: var(--clean);"></i> Disable
-                                </button>
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#10b981] bg-[#10b981]/20 text-[#10b981] font-mono text-xs font-black uppercase">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> Active
+                                </span>
                             {% else %}
-                                <button type="submit" class="btn-action btn-azure" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                                    <i class="fa-solid fa-toggle-off"></i> Enable
-                                </button>
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#e11d48] dark:border-primary bg-[#e11d48]/15 dark:bg-primary/20 text-[#e11d48] dark:text-primary font-mono text-xs font-black uppercase">
+                                    <i class="fa-solid fa-circle-pause text-[10px]"></i> Disabled
+                                </span>
                             {% endif %}
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap text-right">
+                            <form action="{{ url_for('admin.toggle_rule', rule_id=r['rule_id']) }}" method="POST" class="inline">
+                                {% if r['is_active'] == 1 %}
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-[#e11d48] dark:hover:border-primary transition-all cursor-pointer">
+                                        <i class="fa-solid fa-toggle-on text-[#10b981]"></i> Disable
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-bold text-xs uppercase border border-outline dark:border-primary transition-all cursor-pointer">
+                                        <i class="fa-solid fa-toggle-off"></i> Enable
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

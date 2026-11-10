@@ -46,7 +46,11 @@ def login():
         db = get_db()
         user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
-        if user and user["is_active"] == 1 and bcrypt.check_password_hash(user["password_hash"], password):
+        if user and bcrypt.check_password_hash(user["password_hash"], password):
+            if user["is_active"] != 1:
+                flash("Your account has been suspended. Contact an administrator.", "danger")
+                return render_template("login.html")
+
             session.clear()
             session["user_id"] = user["user_id"]
             session["email"] = user["email"]
@@ -71,7 +75,7 @@ def register():
         password = request.form.get("password", "")
         confirm = request.form.get("confirm_password", "")
 
-        if not email or not password:
+        if not email or not password or not confirm:
             flash("All fields are required.", "danger")
             return render_template("register.html")
 
@@ -90,11 +94,14 @@ def register():
             return render_template("register.html")
 
         pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
-        db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?)",
             (email, pw_hash, "viewer"),
         )
+        new_uid = cursor.lastrowid
         db.commit()
+        log_audit(new_uid, "USER_REGISTER", f"Registered {email} with default viewer role")
         flash("Account created! Please log in.", "success")
         return redirect(url_for("auth.login"))
 

@@ -1,90 +1,116 @@
 {% extends "base.html" %}
 {% block title %}Historical Assessments — CloudGuard{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-terminal mr-1"></i> LOGS // ASSESSMENT_HISTORY
-        </div>
-        <h1 class="page-title">Historical Assessments</h1>
-        <p class="page-subtitle">Complete chronological audit ledger of scanned Azure infrastructure configurations</p>
-    </div>
-    <div class="flex gap-3">
-        <a href="{{ url_for('analytics.analytics') }}" class="btn-action btn-ghost">
-            <i class="fa-solid fa-chart-line"></i> Analytics View
-        </a>
-        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> + Ingest Config
-        </a>
-    </div>
-</div>
+<div class="flex flex-col w-full gap-6">
 
-<div class="glass-card">
-    <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
-        <div class="font-mono text-xs uppercase font-bold tracking-wider">
-            TOTAL RECORDS: {{ scans|length }}
+    <!-- Operational Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-terminal text-xs text-secondary"></i>
+                <span>LOGS // ASSESSMENT_HISTORY</span>
+            </div>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Historical Assessments</h1>
+            <p class="font-mono text-xs text-on-surface-variant">Complete chronological audit ledger of scanned Azure infrastructure configurations</p>
         </div>
-        <input type="text" id="scanSearch" placeholder="SEARCH BY FILENAME OR ID..." onkeyup="filterTable()" class="form-control text-xs font-mono max-w-xs" style="padding: 0.45rem 0.75rem;">
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{{ url_for('analytics.analytics') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-chart-line text-xs text-secondary"></i>
+                <span>Analytics View</span>
+            </a>
+            <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary transition-all">
+                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                <span>+ Ingest Config</span>
+            </a>
+        </div>
     </div>
 
-    {% if scans %}
-    <div class="table-shell">
-        <table class="enterprise-table" id="scansTable">
-            <thead>
-                <tr>
-                    <th>Scan Ref</th>
-                    <th>Manifest Filename</th>
-                    <th>Timestamp</th>
-                    <th>Calculated Risk</th>
-                    <th>Breakdown (C/H/M/L)</th>
-                    <th>Total</th>
-                    <th style="text-align: right;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in scans %}
-                <tr>
-                    <td>
-                        <span class="code-pill">#SCAN-{{ s['scan_id'] }}</span>
-                    </td>
-                    <td class="font-bold flex items-center gap-2">
-                        <i class="fa-regular fa-file-code"></i>
-                        {{ s['filename'] }}
-                    </td>
-                    <td class="font-mono text-xs opacity-75">
-                        {{ s['scanned_at'][:19] }}
-                    </td>
-                    <td>
-                        <span class="status-pill {% if s['risk_score'] == 'Critical' %}pill-critical{% elif s['risk_score'] == 'High' %}pill-high{% elif s['risk_score'] == 'Medium' %}pill-medium{% elif s['risk_score'] == 'Low' %}pill-low{% else %}pill-clean{% endif %}">
-                            {{ s['risk_score'] }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="flex items-center gap-1 font-mono text-xs">
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-critical); font-weight: 700;">{{ s['critical_count'] }}C</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-high); font-weight: 700;">{{ s['high_count'] }}H</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-medium); font-weight: 700;">{{ s['medium_count'] }}M</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-low); font-weight: 700;">{{ s['low_count'] }}L</span>
-                        </div>
-                    </td>
-                    <td class="font-mono text-xs font-bold">
-                        {{ s['total_findings'] }}
-                    </td>
-                    <td style="text-align: right;">
-                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-                            Report &rarr;
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Ledger Card -->
+    <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
+        <!-- Toolbar -->
+        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+                </div>
+                <div class="font-mono text-xs font-black uppercase tracking-wider text-on-surface">
+                    TOTAL RECORDS :: <span class="text-secondary">{{ scans|length }}</span>
+                </div>
+            </div>
+            <div class="relative w-full sm:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-on-surface-variant"></i>
+                <input type="text" id="scanSearch" onkeyup="filterTable()" placeholder="SEARCH BY FILENAME OR ID..." class="w-full pl-8 pr-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/60 font-bold">
+            </div>
+        </div>
+
+        {% if scans %}
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse" id="scansTable">
+                <thead>
+                    <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Scan Ref</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Manifest Filename</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Timestamp</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Calculated Risk</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Breakdown (C/H/M/L)</th>
+                        <th class="py-3 px-4 border-r border-outline" scope="col">Total</th>
+                        <th class="py-3 px-4 text-right" scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body text-sm divide-y divide-outline">
+                    {% for s in scans %}
+                    <tr class="hover:bg-primary/10 transition-colors bg-surface-container/60">
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="font-mono text-xs font-bold px-2 py-0.5 bg-surface-container-high border border-outline text-secondary">#SCAN-{{ s['scan_id'] }}</span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <div class="flex items-center gap-2 font-mono text-xs font-bold text-on-surface">
+                                <i class="fa-regular fa-file-code text-[#e11d48] dark:text-primary"></i>
+                                <span>{{ s['filename'] }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap font-mono text-xs text-on-surface-variant border-r border-outline">
+                            {{ s['scanned_at'][:19] }}
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="inline-flex items-center px-2 py-0.5 border font-mono text-xs font-black uppercase tracking-wider {% if s['risk_score'] == 'Critical' %}border-[#e11d48] bg-[#e11d48]/15 text-[#e11d48] dark:border-primary dark:bg-primary/20 dark:text-primary{% elif s['risk_score'] == 'High' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b]{% elif s['risk_score'] == 'Medium' %}border-tertiary bg-tertiary/20 text-tertiary{% elif s['risk_score'] == 'Low' %}border-secondary bg-secondary/20 text-secondary{% else %}border-[#10b981] bg-[#10b981]/20 text-[#10b981]{% endif %}">
+                                {{ s['risk_score'] }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap border-r border-outline">
+                            <div class="flex items-center gap-1 font-mono text-xs">
+                                <span class="px-1.5 py-0.5 border border-[#e11d48]/50 dark:border-primary/50 bg-surface-container-lowest text-[#e11d48] dark:text-primary font-bold">{{ s['critical_count'] }}C</span>
+                                <span class="px-1.5 py-0.5 border border-[#f59e0b]/50 bg-surface-container-lowest text-[#d97706] dark:text-[#f59e0b] font-bold">{{ s['high_count'] }}H</span>
+                                <span class="px-1.5 py-0.5 border border-tertiary/50 bg-surface-container-lowest text-tertiary font-bold">{{ s['medium_count'] }}M</span>
+                                <span class="px-1.5 py-0.5 border border-secondary/50 bg-surface-container-lowest text-secondary font-bold">{{ s['low_count'] }}L</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap font-mono text-xs font-black text-on-surface border-r border-outline">
+                            {{ s['total_findings'] }}
+                        </td>
+                        <td class="py-3.5 px-4 whitespace-nowrap text-right">
+                            <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-low hover:bg-primary text-on-surface hover:text-black dark:hover:text-white font-headline text-xs font-bold uppercase border border-outline hover:border-primary transition-all">
+                                <span>Report</span>
+                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="py-16 px-6 text-center">
+            <div class="w-14 h-14 bg-surface-container-low border-2 border-outline text-on-surface-variant flex items-center justify-center text-2xl mx-auto mb-3">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <p class="font-mono text-xs uppercase text-on-surface-variant mb-4">No assessments recorded in database.</p>
+            <a href="{{ url_for('scans.upload') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-black dark:text-white font-headline font-bold text-xs uppercase border border-outline dark:border-primary">
+                <i class="fa-solid fa-plus"></i> Run First Scan
+            </a>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="text-center py-12">
-        <p class="font-mono text-sm opacity-70">No assessments recorded in database.</p>
-    </div>
-    {% endif %}
 </div>
 
 <script>
@@ -92,20 +118,17 @@ function filterTable() {
     const input = document.getElementById("scanSearch");
     const filter = input.value.toUpperCase();
     const table = document.getElementById("scansTable");
+    if (!table) return;
     const tr = table.getElementsByTagName("tr");
 
     for (let i = 1; i < tr.length; i++) {
         let tdFile = tr[i].getElementsByTagName("td")[1];
         let tdId = tr[i].getElementsByTagName("td")[0];
         if (tdFile || tdId) {
-            let txtValue = (tdFile.textContent || tdFile.innerText) + " " + (tdId.textContent || tdId.innerText);
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
+            let txtValue = ((tdFile ? (tdFile.textContent || tdFile.innerText) : "") + " " + (tdId ? (tdId.textContent || tdId.innerText) : ""));
+            tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
         }
     }
 }
 </script>
-{% endblock %}
+{% endblock %}

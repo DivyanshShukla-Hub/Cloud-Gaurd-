@@ -1,77 +1,116 @@
 {% extends "base.html" %}
 {% block title %}Immutable Security Audit Log — CloudGuard Admin{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-lock"></i> Administration / Forensics & Audit
+<div class="flex flex-col w-full gap-6">
+
+    <!-- Operational Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-lock text-xs text-secondary"></i>
+                <span>ADMINISTRATION // FORENSICS_AUDIT</span>
+            </div>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Immutable System Audit Trail</h1>
+            <p class="font-mono text-xs text-on-surface-variant">Chronological ledger of security-sensitive operations, user sessions, and compliance scans</p>
         </div>
-        <h1 class="page-title">Immutable System Audit Trail</h1>
-        <p class="page-subtitle">Chronological ledger of security-sensitive operations, user sessions, and compliance scans</p>
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{{ url_for('admin.users') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-users text-xs text-secondary"></i>
+                <span>Users</span>
+            </a>
+            <a href="{{ url_for('admin.rules') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-sliders text-xs text-secondary"></i>
+                <span>Rules</span>
+            </a>
+        </div>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="{{ url_for('admin.users') }}" class="btn-action btn-ghost"><i class="fa-solid fa-users"></i> Users</a>
-        <a href="{{ url_for('admin.rules') }}" class="btn-action btn-ghost"><i class="fa-solid fa-sliders"></i> Rules</a>
+
+    <!-- Audit Log Card -->
+    <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
+        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-file-shield text-sm"></i>
+                </div>
+                <div class="font-headline font-black text-sm uppercase tracking-wider text-on-surface">
+                    Recorded Forensic Events ({{ logs|length }})
+                </div>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-on-surface-variant"></i>
+                    <input type="text" id="auditSearch" onkeyup="filterAudit()" placeholder="FILTER EVENTS..." class="w-full pl-8 pr-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/60 font-bold">
+                </div>
+                <span class="font-mono text-[11px] px-2 py-1 bg-surface-container-high border border-outline text-on-surface-variant font-bold uppercase whitespace-nowrap">Newest First</span>
+            </div>
+        </div>
+
+        {% if logs %}
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse" id="auditTable">
+                <thead>
+                    <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
+                        <th class="py-3 px-4 border-r border-outline w-48" scope="col">Event Timestamp</th>
+                        <th class="py-3 px-4 border-r border-outline w-56" scope="col">Actor Identity</th>
+                        <th class="py-3 px-4 border-r border-outline w-44" scope="col">Action Classification</th>
+                        <th class="py-3 px-4" scope="col">Target Object / Context</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body text-sm divide-y divide-outline">
+                    {% for l in logs %}
+                    <tr class="hover:bg-primary/10 transition-colors bg-surface-container/60">
+                        <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-on-surface-variant border-r border-outline">
+                            {{ l['performed_at'][:19] }}
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap border-r border-outline">
+                            {% if l['email'] %}
+                                <div class="flex items-center gap-2 font-mono text-xs font-bold text-on-surface">
+                                    <i class="fa-solid fa-user-shield text-secondary text-xs"></i>
+                                    <span>{{ l['email'] }}</span>
+                                </div>
+                            {% else %}
+                                <span class="font-mono text-xs text-on-surface-variant italic">System / Anonymous</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap border-r border-outline">
+                            <span class="inline-flex items-center px-2 py-0.5 border font-mono text-xs font-black uppercase tracking-wider {% if 'DELETE' in l['action'] or 'DISABLE' in l['action'] or 'SUSPEND' in l['action'] or 'DEACTIVATE' in (l['target']|upper) %}border-[#e11d48] bg-[#e11d48]/15 text-[#e11d48] dark:border-primary dark:bg-primary/20 dark:text-primary{% elif 'LOGIN' in l['action'] or 'SCAN' in l['action'] or 'REGISTER' in l['action'] %}border-[#10b981] bg-[#10b981]/20 text-[#10b981]{% else %}border-secondary bg-secondary/20 text-secondary{% endif %}">
+                                {{ l['action'] }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-xs text-on-surface font-medium">
+                            {{ l['target'] }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="py-16 px-6 text-center">
+            <div class="w-14 h-14 bg-surface-container-low border-2 border-outline text-on-surface-variant flex items-center justify-center text-2xl mx-auto mb-3">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+            <h3 class="font-headline font-black text-lg uppercase text-on-surface mb-1">No Audit Events Recorded</h3>
+            <p class="font-mono text-xs text-on-surface-variant">
+                Security-relevant operations will be automatically appended here.
+            </p>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<div class="glass-card">
-    <div class="card-title-bar">
-        <div class="card-heading">
-            <i class="fa-solid fa-file-shield" style="color: var(--azure);"></i>
-            <span>Recorded Forensic Events ({{ logs|length }})</span>
-        </div>
-        <span style="font-size: 0.78rem; color: var(--text-tertiary);">Ordered: Newest First</span>
-    </div>
+<script>
+function filterAudit() {
+    const input = document.getElementById("auditSearch");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("auditTable");
+    if (!table) return;
+    const tr = table.getElementsByTagName("tr");
 
-    {% if logs %}
-    <div class="table-shell">
-        <table class="enterprise-table">
-            <thead>
-                <tr>
-                    <th style="width: 180px;">Event Timestamp</th>
-                    <th style="width: 220px;">Actor Identity</th>
-                    <th style="width: 170px;">Action Classification</th>
-                    <th>Target Object / Context</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for l in logs %}
-                <tr>
-                    <td style="color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
-                        {{ l['performed_at'][:19] }}
-                    </td>
-                    <td>
-                        {% if l['email'] %}
-                            <strong style="color: #fff; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-user-shield" style="color: var(--azure); font-size: 0.8rem;"></i>
-                                {{ l['email'] }}
-                            </strong>
-                        {% else %}
-                            <span style="color: var(--text-tertiary); font-style: italic;">System / Anonymous</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="code-pill" style="font-size: 0.75rem; letter-spacing: 0.5px; color: {% if 'DELETE' in l['action'] or 'DISABLE' in l['action'] or 'SUSPEND' in l['action'] %}var(--critical){% elif 'LOGIN' in l['action'] or 'SCAN' in l['action'] %}var(--clean){% else %}var(--azure){% endif %};">
-                            {{ l['action'] }}
-                        </span>
-                    </td>
-                    <td style="color: #cbd5e1; font-size: 0.88rem;">
-                        {{ l['target'] }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div style="text-align: center; padding: 3.5rem 1rem;">
-        <i class="fa-solid fa-receipt" style="font-size: 2.5rem; color: #334155; margin-bottom: 1rem;"></i>
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">No Audit Events Recorded</h3>
-        <p style="color: var(--text-secondary); font-size: 0.88rem;">
-            Security-relevant operations will be automatically appended here.
-        </p>
-    </div>
-    {% endif %}
-</div>
+    for (let i = 1; i < tr.length; i++) {
+        let rowText = tr[i].textContent || tr[i].innerText;
+        tr[i].style.display = rowText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+    }
+}
+</script>
 {% endblock %}

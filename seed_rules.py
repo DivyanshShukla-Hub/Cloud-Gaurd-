@@ -2,7 +2,7 @@ import sqlite3
 from flask_bcrypt import Bcrypt
 
 def seed_database(db_path="cloudguard.db"):
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     cursor = conn.cursor()
 
     # Rule categories
@@ -132,9 +132,15 @@ def seed_database(db_path="cloudguard.db"):
 
     for r in rules_data:
         cursor.execute(
-            """INSERT OR REPLACE INTO rules
+            """INSERT INTO rules
                (rule_id, rule_name, description, severity, fix_guidance, is_active, category_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(rule_id) DO UPDATE SET
+                   rule_name = excluded.rule_name,
+                   description = excluded.description,
+                   severity = excluded.severity,
+                   fix_guidance = excluded.fix_guidance,
+                   category_id = excluded.category_id""",
             r,
         )
 

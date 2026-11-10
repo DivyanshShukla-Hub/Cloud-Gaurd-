@@ -1,219 +1,256 @@
 {% extends "base.html" %}
 {% block title %}Security Analytics & Trends — CloudGuard{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-house"></i> Workspace / Compliance Telemetry
-        </div>
-        <h1 class="page-title">Security Intelligence & Analytics</h1>
-        <p class="page-subtitle">Cross-scan vulnerability frequency, 30-day incident trends, and DP-900 warehouse metrics</p>
-    </div>
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <span class="status-pill pill-clean" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
-            <i class="fa-solid fa-database"></i> Source: open_critical_findings View
-        </span>
-    </div>
-</div>
+<div class="flex flex-col w-full gap-6">
 
-<!-- 3 KPI Cards -->
-<div class="kpi-grid">
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-azure">
-            <i class="fa-solid fa-chart-line"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Audits This Month</div>
-            <div class="kpi-number">{{ total_month }}</div>
-        </div>
-    </div>
-
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-critical">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Most Prevalent Severity</div>
-            <div class="kpi-number" style="font-size: 1.5rem; color: var(--critical);">{{ most_common_sev }}</div>
-        </div>
-    </div>
-
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-purple">
-            <i class="fa-solid fa-ranking-star"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Most Triggered Rule</div>
-            <div class="kpi-number" style="font-size: 1.15rem; color: #c084fc; margin-top: 0.25rem;">{{ most_triggered }}</div>
-        </div>
-    </div>
-</div>
-
-<!-- Charts Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-    <!-- Chart 1: Bar Chart -->
-    <div class="glass-card">
-        <div class="card-title-bar">
-            <div class="card-heading">
-                <i class="fa-solid fa-chart-bar" style="color: var(--azure);"></i>
-                <span>Top 10 Most Triggered Rules</span>
+    <!-- Operational Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-chart-column text-xs text-secondary"></i>
+                <span>COMPLIANCE // TELEMETRY_ANALYTICS</span>
             </div>
-            <span style="font-size: 0.78rem; color: var(--text-tertiary);">All Scans Aggregated</span>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Security Intelligence &amp; Analytics</h1>
+            <p class="font-mono text-xs text-on-surface-variant">Cross-scan vulnerability frequency, 30-day incident trends, and DP-900 warehouse metrics</p>
         </div>
-        <div style="position: relative; height: 300px;">
-            <canvas id="topRulesChart"></canvas>
+        <div class="flex items-center gap-3 flex-wrap">
+            <span class="font-mono text-xs px-3 py-1.5 bg-surface-container border border-[#10b981] text-[#10b981] font-bold uppercase flex items-center gap-2">
+                <i class="fa-solid fa-database"></i>
+                <span>View: open_critical_findings</span>
+            </span>
         </div>
     </div>
 
-    <!-- Chart 2: Line Chart -->
-    <div class="glass-card">
-        <div class="card-title-bar">
-            <div class="card-heading">
-                <i class="fa-solid fa-chart-line" style="color: var(--critical);"></i>
-                <span>Critical Findings Velocity (Last 30 Days)</span>
+    <!-- 3 Telemetry KPI Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <!-- Audits This Month -->
+        <div class="bg-surface-container border-2 border-outline p-5 flex items-center justify-between hover:border-secondary transition-all">
+            <div class="flex flex-col">
+                <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider font-bold">Audits This Month</span>
+                <span class="font-headline text-3xl font-black text-on-surface mt-1">{{ total_month }}</span>
+                <span class="font-mono text-[11px] text-secondary font-bold mt-2 uppercase">Rolling 30-Day Window</span>
             </div>
-            <span class="status-pill pill-critical">Daily Trend</span>
-        </div>
-        <div style="position: relative; height: 300px;">
-            <canvas id="dailyChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- DP-900 / Power BI Integration Panel -->
-<div class="glass-card" style="border: 1px solid rgba(14, 165, 233, 0.3); background: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, rgba(12, 18, 30, 0.9) 100%);">
-    <div class="card-title-bar">
-        <div class="card-heading">
-            <i class="fa-solid fa-chart-simple" style="color: var(--azure);"></i>
-            <span>Power BI & Azure Data Warehouse Integration (DP-900)</span>
-        </div>
-        <span class="code-pill">Microsoft DP-900 Standard</span>
-    </div>
-    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
-        In an Azure cloud production environment, this dashboard feeds live data into Power BI via DirectQuery on the pre-compiled <code style="color: var(--azure);">open_critical_findings</code> SQL view:
-    </p>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-        <div style="background: rgba(0, 0, 0, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 0.25rem;">
-                <i class="fa-solid fa-database" style="color: var(--azure);"></i> 1. Azure SQL DirectQuery
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.82rem;">
-                Near real-time querying without data duplication or manual ETL sync delays.
+            <div class="w-12 h-12 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-chart-line text-lg"></i>
             </div>
         </div>
 
-        <div style="background: rgba(0, 0, 0, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 0.25rem;">
-                <i class="fa-solid fa-box-archive" style="color: #a855f7;"></i> 2. Blob Storage Archive
+        <!-- Most Prevalent Severity -->
+        <div class="bg-surface-container border-2 border-[#e11d48] dark:border-primary p-5 flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="font-mono text-xs text-[#e11d48] dark:text-primary uppercase tracking-wider font-bold">Most Prevalent Severity</span>
+                <span class="font-headline text-3xl font-black text-[#e11d48] dark:text-primary mt-1 uppercase">{{ most_common_sev }}</span>
+                <span class="font-mono text-[11px] text-on-surface-variant font-bold mt-2 uppercase">Highest Volume Tier</span>
             </div>
-            <div style="color: var(--text-secondary); font-size: 0.82rem;">
-                Raw JSON/YAML templates automatically tiered from Hot to Cold storage for auditing.
+            <div class="w-12 h-12 bg-[#e11d48] dark:bg-primary text-white border border-[#e11d48] dark:border-primary flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-triangle-exclamation text-lg"></i>
             </div>
         </div>
 
-        <div style="background: rgba(0, 0, 0, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 0.25rem;">
-                <i class="fa-solid fa-eye" style="color: var(--clean);"></i> 3. Security View
+        <!-- Most Triggered Rule -->
+        <div class="bg-surface-container border-2 border-outline p-5 flex items-center justify-between hover:border-tertiary transition-all">
+            <div class="flex flex-col min-w-0 pr-3">
+                <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider font-bold">Most Triggered Rule</span>
+                <span class="font-headline text-xl font-black text-tertiary mt-1 truncate">{{ most_triggered }}</span>
+                <span class="font-mono text-[11px] text-on-surface-variant font-bold mt-2 uppercase">Top Compliance Violation</span>
             </div>
-            <div style="color: var(--text-secondary); font-size: 0.82rem;">
-                <code style="color: var(--clean);">open_critical_findings</code> exposes only necessary attributes to BI analysts.
+            <div class="w-12 h-12 bg-tertiary/10 text-tertiary border border-tertiary flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-ranking-star text-lg"></i>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Charts Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart 1: Bar Chart -->
+        <div class="bg-surface-container border-2 border-outline flex flex-col">
+            <div class="px-5 py-3.5 bg-surface-container-low border-b-2 border-outline flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-chart-bar text-secondary"></i>
+                    <span class="font-headline font-black text-sm uppercase tracking-wide text-on-surface">Top 10 Most Triggered Rules</span>
+                </div>
+                <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-on-surface-variant font-bold uppercase">All Scans</span>
+            </div>
+            <div class="p-5 relative h-80">
+                <canvas id="topRulesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Line Chart -->
+        <div class="bg-surface-container border-2 border-outline flex flex-col">
+            <div class="px-5 py-3.5 bg-surface-container-low border-b-2 border-outline flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-chart-line text-[#e11d48] dark:text-primary"></i>
+                    <span class="font-headline font-black text-sm uppercase tracking-wide text-on-surface">Critical Findings Velocity (30D)</span>
+                </div>
+                <span class="font-mono text-[11px] px-2 py-0.5 bg-[#e11d48]/15 dark:bg-primary/20 border border-[#e11d48] dark:border-primary text-[#e11d48] dark:text-primary font-bold uppercase">Daily Trend</span>
+            </div>
+            <div class="p-5 relative h-80">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- DP-900 / Power BI Integration Panel -->
+    <section class="bg-surface-container border-2 border-secondary p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-outline pb-4 mb-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-chart-simple"></i>
+                </div>
+                <h2 class="font-headline font-black text-lg uppercase tracking-tight text-on-surface">
+                    Power BI &amp; Azure Data Warehouse Integration (DP-900)
+                </h2>
+            </div>
+            <span class="font-mono text-xs px-2.5 py-1 bg-surface-container-high border border-secondary text-secondary font-bold uppercase">Microsoft DP-900 Standard</span>
+        </div>
+
+        <p class="font-body text-sm text-on-surface-variant mb-5">
+            In an Azure cloud production environment, this dashboard feeds live telemetry into Power BI via DirectQuery on the pre-compiled <code class="font-mono px-1.5 py-0.5 bg-surface-container-lowest border border-outline text-secondary font-bold">open_critical_findings</code> SQL view:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-surface-container-low border-2 border-outline p-4">
+                <div class="font-headline font-black text-sm uppercase text-on-surface mb-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-database text-secondary"></i>
+                    <span>1. Azure SQL DirectQuery</span>
+                </div>
+                <p class="font-body text-xs text-on-surface-variant leading-relaxed">
+                    Near real-time querying without data duplication or manual ETL sync delays.
+                </p>
+            </div>
+
+            <div class="bg-surface-container-low border-2 border-outline p-4">
+                <div class="font-headline font-black text-sm uppercase text-on-surface mb-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-tertiary"></i>
+                    <span>2. Blob Storage Archive</span>
+                </div>
+                <p class="font-body text-xs text-on-surface-variant leading-relaxed">
+                    Raw JSON/YAML templates tiered from Hot to Cool/Cold storage for forensic auditing.
+                </p>
+            </div>
+
+            <div class="bg-surface-container-low border-2 border-outline p-4">
+                <div class="font-headline font-black text-sm uppercase text-on-surface mb-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-[#10b981]"></i>
+                    <span>3. Security SQL View</span>
+                </div>
+                <p class="font-body text-xs text-on-surface-variant leading-relaxed">
+                    <code class="font-mono text-[#10b981] font-bold">open_critical_findings</code> exposes only curated attributes to BI analysts.
+                </p>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const topLabels = {{ top_labels|safe }};
     const topValues = {{ top_values|safe }};
     const dailyLabels = {{ daily_labels|safe }};
     const dailyValues = {{ daily_values|safe }};
 
-    // Chart.js global styling defaults
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    let barChart = null;
+    let lineChart = null;
 
-    // Bar Chart
-    const ctxBar = document.getElementById('topRulesChart').getContext('2d');
-    const gradientBar = ctxBar.createLinearGradient(0, 0, 0, 300);
-    gradientBar.addColorStop(0, 'rgba(14, 165, 233, 0.8)');
-    gradientBar.addColorStop(1, 'rgba(14, 165, 233, 0.2)');
+    function getThemePalette() {
+        const isDark = document.documentElement.classList.contains('dark');
+        return {
+            text: isDark ? '#9395b0' : '#525252',
+            grid: isDark ? 'rgba(48, 45, 74, 0.55)' : 'rgba(26, 26, 26, 0.12)',
+            barFill: isDark ? 'rgba(0, 243, 255, 0.25)' : 'rgba(2, 132, 199, 0.2)',
+            barBorder: isDark ? '#00f3ff' : '#0284c7',
+            lineColor: isDark ? '#ff2d78' : '#e11d48',
+            lineFill: isDark ? 'rgba(255, 45, 120, 0.2)' : 'rgba(225, 29, 72, 0.15)',
+            pointBorder: isDark ? '#0a0b14' : '#ffffff'
+        };
+    }
 
-    new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: topLabels.length ? topLabels : ['No data yet'],
-            datasets: [{
-                label: 'Violations Detected',
-                data: topValues.length ? topValues : [0],
-                backgroundColor: gradientBar,
-                borderColor: '#0ea5e9',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+    function renderCharts() {
+        const p = getThemePalette();
+        Chart.defaults.color = p.text;
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+        if (barChart) barChart.destroy();
+        if (lineChart) lineChart.destroy();
+
+        const ctxBar = document.getElementById('topRulesChart').getContext('2d');
+        barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: topLabels.length ? topLabels : ['No data yet'],
+                datasets: [{
+                    label: 'Violations Detected',
+                    data: topValues.length ? topValues : [0],
+                    backgroundColor: p.barFill,
+                    borderColor: p.barBorder,
+                    borderWidth: 2,
+                    borderRadius: 0
+                }]
             },
-            scales: {
-                x: { 
-                    ticks: { color: '#94a3b8', font: { size: 10 } }, 
-                    grid: { display: false } 
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
                 },
-                y: { 
-                    ticks: { color: '#94a3b8', stepSize: 1 }, 
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                scales: {
+                    x: {
+                        ticks: { color: p.text, font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: p.text, stepSize: 1 },
+                        grid: { color: p.grid }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Line Chart
-    const ctxLine = document.getElementById('dailyChart').getContext('2d');
-    const gradientLine = ctxLine.createLinearGradient(0, 0, 0, 300);
-    gradientLine.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
-    gradientLine.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
-
-    new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: dailyLabels.length ? dailyLabels : ['No events'],
-            datasets: [{
-                label: 'Critical Vulnerabilities',
-                data: dailyValues.length ? dailyValues : [0],
-                borderColor: '#ef4444',
-                borderWidth: 2,
-                backgroundColor: gradientLine,
-                tension: 0.35,
-                fill: true,
-                pointBackgroundColor: '#ef4444',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 1.5,
-                pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+        const ctxLine = document.getElementById('dailyChart').getContext('2d');
+        lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: dailyLabels.length ? dailyLabels : ['No events'],
+                datasets: [{
+                    label: 'Critical Vulnerabilities',
+                    data: dailyValues.length ? dailyValues : [0],
+                    borderColor: p.lineColor,
+                    borderWidth: 2,
+                    backgroundColor: p.lineFill,
+                    tension: 0.2,
+                    fill: true,
+                    pointBackgroundColor: p.lineColor,
+                    pointBorderColor: p.pointBorder,
+                    pointBorderWidth: 2,
+                    pointRadius: 4
+                }]
             },
-            scales: {
-                x: { 
-                    ticks: { color: '#94a3b8' }, 
-                    grid: { display: false } 
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
                 },
-                y: { 
-                    ticks: { color: '#94a3b8', stepSize: 1 }, 
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                scales: {
+                    x: {
+                        ticks: { color: p.text, font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: p.text, stepSize: 1 },
+                        grid: { color: p.grid }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
+
+    renderCharts();
+    window.addEventListener('cloudguard:themechange', renderCharts);
 </script>
 {% endblock %}

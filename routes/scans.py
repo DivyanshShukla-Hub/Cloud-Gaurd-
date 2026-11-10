@@ -1,6 +1,6 @@
 import os
 import uuid
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, abort
 from werkzeug.utils import secure_filename
 from models.db import get_db, log_audit
 from routes.auth import login_required
@@ -72,7 +72,8 @@ def upload():
             flash("Invalid file type. Only .json, .yaml, .yml allowed.", "danger")
             return redirect(request.url)
 
-        original_name = secure_filename(f.filename)
+        ext = os.path.splitext(f.filename)[1].lower()
+        original_name = secure_filename(f.filename) or f"manifest{ext}"
         unique_name = f"{uuid.uuid4().hex[:8]}_{original_name}"
         upload_dir = current_app.config["UPLOAD_FOLDER"]
         os.makedirs(upload_dir, exist_ok=True)
@@ -82,20 +83,21 @@ def upload():
         uid = session["user_id"]
         log_audit(uid, "FILE_UPLOAD", original_name)
 
-        # Parse
+        # Parse and always remove temporary file from disk afterward
         try:
             config_dict, ftype = parse_config(save_path)
         except ParseError as e:
             flash(f"Parse error: {e}", "danger")
-            os.remove(save_path)
             return redirect(request.url)
         except Exception as e:
             flash(f"Unexpected error: {e}", "danger")
             return redirect(request.url)
+        finally:
+            if os.path.exists(save_path):
+                os.remove(save_path)
 
         if not isinstance(config_dict, dict):
             flash("Config file must contain a JSON/YAML object.", "danger")
-            os.remove(save_path)
             return redirect(request.url)
 
         # Get active rules from DB
@@ -161,9 +163,10 @@ def results(scan_id):
         return redirect(url_for("scans.dashboard"))
 
     findings = db.execute(
-        """SELECT f.*, r.rule_name, r.fix_guidance
+        """SELECT f.*, r.rule_name, r.fix_guidance, c.category_name
            FROM findings f
            JOIN rules r ON f.rule_id = r.rule_id
+           LEFT JOIN rule_categories c ON r.category_id = c.category_id
            WHERE f.scan_id = ?
            ORDER BY
                CASE f.severity
@@ -188,8 +191,11 @@ def history():
     ).fetchall()
     return render_template("history.html", scans=scans)
 
+
 @scans_bp.route("/sample_<name>.json")
 def serve_sample(name):
     from flask import send_from_directory
+    if name not in ("bad", "good"):
+        abort(404)
     filename = f"sample_{name}.json"
     return send_from_directory(current_app.root_path, filename)

@@ -6,7 +6,7 @@
     <!-- Operational Header Area -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
         <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-2 text-primary font-mono text-xs font-bold uppercase tracking-wider">
+            <div class="flex items-center gap-2 text-[#e11d48] dark:text-primary font-mono text-xs font-bold uppercase tracking-wider">
                 <i class="fa-solid fa-terminal text-xs text-secondary"></i>
                 <span>SCAN_COMPLETE :: {{ scan['filename'] }}</span>
             </div>
@@ -14,7 +14,7 @@
             <p class="font-mono text-xs text-on-surface-variant">
                 TARGET: <strong class="text-on-surface">{{ scan['filename'] }}</strong> &bull;
                 AUDITED: <span class="text-secondary">{{ scan['scanned_at'][:19] }}</span> &bull;
-                SCAN_ID: <span class="px-1.5 py-0.5 bg-surface-container border border-outline text-primary font-bold">#{{ scan['scan_id'] }}</span>
+                SCAN_ID: <span class="px-1.5 py-0.5 bg-surface-container border border-outline text-[#e11d48] dark:text-primary font-bold">#{{ scan['scan_id'] }}</span>
             </p>
         </div>
         <div class="flex items-center gap-3">
@@ -22,7 +22,7 @@
                 <i class="fa-solid fa-print text-xs text-secondary"></i>
                 <span>Export / Print</span>
             </button>
-            <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white font-headline font-black text-xs uppercase border border-primary transition-all">
+            <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary transition-all">
                 <i class="fa-solid fa-rotate-right text-xs"></i>
                 <span>+ Audit Another</span>
             </a>
@@ -34,7 +34,7 @@
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <!-- Left: Overall Risk Pill & Icon -->
             <div class="flex items-center gap-4">
-                <div class="w-16 h-16 border-2 flex items-center justify-center text-3xl flex-shrink-0 font-bold font-mono {% if scan['risk_score'] == 'Critical' %}border-primary bg-primary/20 text-primary shadow-[0_0_12px_rgba(255,45,120,0.35)]{% elif scan['risk_score'] == 'High' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#f59e0b]{% elif scan['risk_score'] == 'Medium' %}border-tertiary bg-tertiary/20 text-tertiary{% elif scan['risk_score'] == 'Low' %}border-secondary bg-secondary/20 text-secondary{% else %}border-[#10b981] bg-[#10b981]/20 text-[#10b981]{% endif %}">
+                <div class="w-16 h-16 border-2 flex items-center justify-center text-3xl flex-shrink-0 font-bold font-mono {% if scan['risk_score'] == 'Critical' %}border-[#e11d48] bg-[#e11d48]/15 text-[#e11d48] dark:border-primary dark:bg-primary/20 dark:text-primary{% elif scan['risk_score'] == 'High' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b]{% elif scan['risk_score'] == 'Medium' %}border-tertiary bg-tertiary/20 text-tertiary{% elif scan['risk_score'] == 'Low' %}border-secondary bg-secondary/20 text-secondary{% else %}border-[#10b981] bg-[#10b981]/20 text-[#10b981]{% endif %}">
                     <i class="fa-solid {% if scan['risk_score'] == 'Clean' %}fa-shield-check{% else %}fa-triangle-exclamation{% endif %}"></i>
                 </div>
                 <div>
@@ -44,9 +44,9 @@
                     </div>
                     <div class="font-mono text-xs text-on-surface-variant mt-1">
                         {% if scan['total_findings'] == 0 %}
-                            <span class="text-[#10b981] font-bold">ALL 15 CIS RULES PASSED // COMPLIANT</span>
+                            <span class="text-[#10b981] font-bold">ALL ACTIVE CIS RULES PASSED // COMPLIANT</span>
                         {% else %}
-                            <span class="text-primary font-bold">{{ scan['total_findings'] }} MISCONFIGURATIONS</span> REQUIRE ARCHITECTURAL REMEDIATION
+                            <span class="text-[#e11d48] dark:text-primary font-bold">{{ scan['total_findings'] }} MISCONFIGURATIONS</span> REQUIRE ARCHITECTURAL REMEDIATION
                         {% endif %}
                     </div>
                 </div>
@@ -55,14 +55,14 @@
             <!-- Right: 4 High-Impact Metric Blocks -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <!-- Critical -->
-                <div class="bg-surface-container-low border-2 border-primary p-3 text-center min-w-[85px] shadow-[0_0_10px_rgba(255,45,120,0.25)]">
-                    <div class="font-headline text-3xl font-black text-primary">{{ scan['critical_count'] }}</div>
-                    <div class="font-mono text-[10px] font-black uppercase text-primary tracking-wider mt-0.5">CRITICAL</div>
+                <div class="bg-surface-container-low border-2 border-[#e11d48] dark:border-primary p-3 text-center min-w-[85px]">
+                    <div class="font-headline text-3xl font-black text-[#e11d48] dark:text-primary">{{ scan['critical_count'] }}</div>
+                    <div class="font-mono text-[10px] font-black uppercase text-[#e11d48] dark:text-primary tracking-wider mt-0.5">CRITICAL</div>
                 </div>
                 <!-- High -->
                 <div class="bg-surface-container-low border-2 border-[#f59e0b] p-3 text-center min-w-[85px]">
-                    <div class="font-headline text-3xl font-black text-[#f59e0b]">{{ scan['high_count'] }}</div>
-                    <div class="font-mono text-[10px] font-black uppercase text-[#f59e0b] tracking-wider mt-0.5">HIGH</div>
+                    <div class="font-headline text-3xl font-black text-[#d97706] dark:text-[#f59e0b]">{{ scan['high_count'] }}</div>
+                    <div class="font-mono text-[10px] font-black uppercase text-[#d97706] dark:text-[#f59e0b] tracking-wider mt-0.5">HIGH</div>
                 </div>
                 <!-- Medium -->
                 <div class="bg-surface-container-low border-2 border-tertiary p-3 text-center min-w-[85px]">
@@ -91,12 +91,12 @@
                 All ({{ findings|length }})
             </button>
             {% if scan['critical_count'] > 0 %}
-            <button class="px-3 py-1 font-mono text-xs font-bold uppercase border-2 border-primary bg-primary/20 text-primary hover:bg-primary hover:text-white transition-all" onclick="filterFindings('Critical')">
+            <button class="px-3 py-1 font-mono text-xs font-bold uppercase border-2 border-[#e11d48] dark:border-primary bg-[#e11d48]/15 dark:bg-primary/20 text-[#e11d48] dark:text-primary hover:bg-[#e11d48] dark:hover:bg-primary hover:text-white transition-all" onclick="filterFindings('Critical')">
                 Critical ({{ scan['critical_count'] }})
             </button>
             {% endif %}
             {% if scan['high_count'] > 0 %}
-            <button class="px-3 py-1 font-mono text-xs font-bold uppercase border-2 border-[#f59e0b] bg-[#f59e0b]/20 text-[#f59e0b] hover:bg-[#f59e0b] hover:text-black transition-all" onclick="filterFindings('High')">
+            <button class="px-3 py-1 font-mono text-xs font-bold uppercase border-2 border-[#f59e0b] bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b] hover:bg-[#f59e0b] hover:text-black transition-all" onclick="filterFindings('High')">
                 High ({{ scan['high_count'] }})
             </button>
             {% endif %}
@@ -117,11 +117,11 @@
     {% if findings %}
         <div class="space-y-4" id="findingsContainer">
             {% for f in findings %}
-            <div class="finding-card bg-surface-container border-2 p-5 transition-all {% if f['severity'] == 'Critical' %}border-primary shadow-[0_0_12px_rgba(255,45,120,0.15)]{% elif f['severity'] == 'High' %}border-[#f59e0b]{% elif f['severity'] == 'Medium' %}border-tertiary{% else %}border-secondary{% endif %}" data-severity="{{ f['severity'] }}">
+            <div class="finding-card bg-surface-container border-2 p-5 transition-all {% if f['severity'] == 'Critical' %}border-[#e11d48] dark:border-primary{% elif f['severity'] == 'High' %}border-[#f59e0b]{% elif f['severity'] == 'Medium' %}border-tertiary{% else %}border-secondary{% endif %}" data-severity="{{ f['severity'] }}">
                 <!-- Card Header -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-outline pb-3">
                     <div class="flex items-center gap-3">
-                        <span class="px-2.5 py-1 font-mono text-xs font-black uppercase border tracking-wider {% if f['severity'] == 'Critical' %}bg-primary text-white border-primary{% elif f['severity'] == 'High' %}bg-[#f59e0b] text-black border-[#f59e0b]{% elif f['severity'] == 'Medium' %}bg-tertiary text-black border-tertiary{% else %}bg-secondary text-black border-secondary{% endif %}">
+                        <span class="px-2.5 py-1 font-mono text-xs font-black uppercase border tracking-wider {% if f['severity'] == 'Critical' %}bg-[#e11d48] dark:bg-primary text-white border-[#e11d48] dark:border-primary{% elif f['severity'] == 'High' %}bg-[#f59e0b] text-black border-[#f59e0b]{% elif f['severity'] == 'Medium' %}bg-tertiary text-black border-tertiary{% else %}bg-secondary text-black border-secondary{% endif %}">
                             {{ f['severity'] }}
                         </span>
                         <h3 class="font-headline font-black text-lg text-on-surface uppercase tracking-tight">
@@ -129,23 +129,23 @@
                         </h3>
                     </div>
                     <span class="font-mono text-xs px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase">
-                        CATEGORY // {{ f['category_name'] }}
+                        CATEGORY // {{ f['category_name'] or 'General' }}
                     </span>
                 </div>
 
                 <!-- Telemetry Technical Detail Box -->
                 <div class="bg-surface-container-low border-2 border-outline p-3.5 mb-3 font-mono text-xs">
-                    <div class="text-primary font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <div class="text-[#e11d48] dark:text-primary font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
                         <i class="fa-solid fa-terminal text-[11px]"></i>
                         <span>// TELEMETRY SNAPSHOT:</span>
                     </div>
-                    <div class="text-on-surface bg-[#0a0b14] border border-outline/70 p-2.5 font-bold">
+                    <div class="text-on-surface bg-surface-container-lowest border border-outline p-2.5 font-bold">
                         {{ f['detail'] }}
                     </div>
                 </div>
 
                 <!-- Fix Guidance Box -->
-                <div class="bg-surface-container-low border-2 border-[#10b981]/50 p-3.5">
+                <div class="bg-surface-container-low border-2 border-[#10b981] p-3.5">
                     <div class="font-mono text-xs font-black uppercase text-[#10b981] mb-1.5 flex items-center gap-2">
                         <i class="fa-solid fa-wrench"></i>
                         <span>RECOMMENDED REMEDIATION:</span>
@@ -164,7 +164,7 @@
             </div>
             <h2 class="font-headline font-black text-2xl uppercase tracking-tight text-on-surface mb-2">Zero Vulnerabilities Detected</h2>
             <p class="font-mono text-xs text-on-surface-variant max-w-lg mx-auto">
-                All 15 automated CIS Azure security rules passed with zero detected misconfigurations.
+                All active automated CIS Azure security rules passed with zero detected misconfigurations.
             </p>
         </div>
     {% endif %}
