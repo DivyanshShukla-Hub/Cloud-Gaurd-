@@ -1,191 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CloudGuard — Enterprise Cloud Misconfiguration Audit{% endblock %}</title>
-    <!-- Tailwind Play CDN for immediate runtime JIT support with darkMode: class -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Space Grotesk"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-                    },
-                    colors: {
-                        canvas: 'var(--bg-canvas)',
-                        surface: 'var(--bg-surface)',
-                        'surface-subtle': 'var(--bg-surface-subtle)',
-                        boundary: 'var(--border-color)',
-                        content: {
-                            primary: 'var(--text-primary)',
-                            secondary: 'var(--text-secondary)',
-                            muted: 'var(--text-muted)',
-                        },
-                        brand: {
-                            accent: 'var(--accent-primary)',
-                            'accent-text': 'var(--accent-primary-text)',
-                            cyber: 'var(--accent-secondary)',
-                        },
-                        severity: {
-                            critical: 'var(--color-critical)',
-                            high: 'var(--color-high)',
-                            medium: 'var(--color-medium)',
-                            low: 'var(--color-low)',
-                            clean: 'var(--color-clean)',
-                        }
-                    },
-                    borderWidth: {
-                        '2': '2px',
-                        '1.5': '1.5px',
-                    }
-                }
-            }
-        };
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{% block title %}CloudGuard SecOps — Neon Tokyo Console{% endblock %}</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "var(--bg-surface)",
+            "surface-container-low": "var(--bg-surface-low)",
+            "surface-container": "var(--bg-surface-container)",
+            "surface-container-high": "var(--bg-surface-high)",
+            "surface-container-highest": "var(--bg-surface-highest)",
+            "surface-container-lowest": "var(--bg-canvas)",
+            "background": "var(--bg-canvas)",
+            "on-surface": "var(--text-primary)",
+            "on-surface-variant": "var(--text-secondary)",
+            "outline": "var(--border-color)",
+            "primary": "var(--accent-primary)",
+            "secondary": "var(--accent-secondary)",
+            "tertiary": "var(--accent-tertiary)",
+          },
+          borderRadius: {
+            "DEFAULT": "0px",
+            "none": "0px",
+            "sm": "0px",
+            "md": "0px",
+            "lg": "0px",
+            "xl": "0px",
+            "2xl": "0px",
+            "full": "0px"
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk", "sans-serif"],
+            "display": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        },
+      },
+    };
 
-        // Theme init from localStorage or system preference
-        (function() {
-            try {
-                var stored = localStorage.getItem('cloudguard_theme');
-                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                } else if (stored === 'light') {
-                    document.documentElement.classList.remove('dark');
-                }
-            } catch (e) {}
-        })();
-
-        function toggleTheme() {
-            var html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('cloudguard_theme', 'light');
+    (function() {
+        try {
+            var stored = localStorage.getItem('cloudguard_theme');
+            if (stored === 'light') {
+                document.documentElement.classList.remove('dark');
             } else {
-                html.classList.add('dark');
-                localStorage.setItem('cloudguard_theme', 'dark');
+                document.documentElement.classList.add('dark');
             }
-        }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3.0">
-</head>
-<body class="bg-canvas text-content-primary flex flex-col min-h-screen antialiased">
+        } catch(e) {}
+    })();
 
-    <!-- Enterprise Navbar -->
-    <nav class="enterprise-nav">
-        <div class="brand-wrapper">
-            <a href="{{ url_for('scans.dashboard') if session.get('user_id') else url_for('auth.login') }}" class="brand-logo">
-                <div class="logo-shield">
-                    <i class="fa-solid fa-shield-halved"></i>
+    function toggleTheme() {
+        var html = document.documentElement;
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            localStorage.setItem('cloudguard_theme', 'light');
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('cloudguard_theme', 'dark');
+        }
+    }
+</script>
+<style>
+  :root {
+    /* Clean Bauhaus (Light) */
+    --bg-canvas: #f9f6ee;
+    --bg-surface: #ffffff;
+    --bg-surface-low: #f5f2e9;
+    --bg-surface-container: #ffffff;
+    --bg-surface-high: #eae5d8;
+    --bg-surface-highest: #ded8c7;
+    --border-color: #1a1a1a;
+    --text-primary: #1a1a1a;
+    --text-secondary: #525252;
+    --text-muted: #737373;
+    --accent-primary: #ffcc00;
+    --accent-secondary: #0284c7;
+    --accent-tertiary: #d97706;
+  }
+  html.dark {
+    /* Neon Tokyo (Dark) */
+    --bg-canvas: #0a0b14;
+    --bg-surface: #0a0b14;
+    --bg-surface-low: #0d0f1d;
+    --bg-surface-container: #13162b;
+    --bg-surface-high: #181b36;
+    --bg-surface-highest: #222749;
+    --border-color: #302d4a;
+    --text-primary: #e8e0f0;
+    --text-secondary: #9395b0;
+    --text-muted: #64748b;
+    --accent-primary: #ff2d78;
+    --accent-secondary: #00f3ff;
+    --accent-tertiary: #ffe04a;
+  }
+  body {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+</head>
+<body class="bg-background font-body text-on-surface min-h-screen">
+
+{% if session.get('user_id') %}
+<!-- Neon Tokyo Dark Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r-2 border-outline z-50 flex flex-col justify-between">
+<div class="flex flex-col">
+    <!-- Sidebar Brand Header -->
+    <div class="h-16 px-4 flex items-center justify-between border-b-2 border-outline bg-surface-container-low">
+        <a href="{{ url_for('scans.dashboard') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-primary text-black dark:text-white flex items-center justify-center font-headline font-bold text-lg border border-primary">
+                CG
+            </div>
+            <span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface">CloudGuard</span>
+        </a>
+        <span class="font-mono text-xs px-2 py-0.5 bg-primary/20 text-primary border border-primary font-bold uppercase tracking-wider">SEC</span>
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="flex flex-col gap-1.5 p-3">
+        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-bold border transition-all {% if request.endpoint == 'scans.dashboard' %}bg-primary text-black dark:text-white border-primary shadow-[0_0_10px_rgba(255,45,120,0.25)]{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.dashboard') }}">
+            <i class="fa-solid fa-house w-4 text-center text-sm"></i>
+            <span class="tracking-wide text-sm uppercase">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}">
+            <i class="fa-solid fa-upload w-4 text-center text-sm text-secondary"></i>
+            <span class="tracking-wide text-sm uppercase">Upload Scan</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.history' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}">
+            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm text-secondary"></i>
+            <span class="tracking-wide text-sm uppercase">Scan History</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'analytics.analytics' %}bg-primary text-black dark:text-white border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('analytics.analytics') }}">
+            <i class="fa-solid fa-chart-column w-4 text-center text-sm text-secondary"></i>
+            <span class="tracking-wide text-sm uppercase">Analytics</span>
+        </a>
+
+        {% if session.get('role') == 'admin' %}
+        <!-- Admin Subsection -->
+        <div class="pt-4 mt-2 border-t-2 border-dashed border-outline">
+            <div class="flex items-center justify-between px-3 py-1.5 mb-1 bg-surface-container border border-outline">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-xs text-primary"></i>
+                    <span class="font-headline font-bold text-xs uppercase tracking-wider text-on-surface">Admin Panel</span>
                 </div>
-                <span>CLOUDFENCE<span class="font-mono text-xs opacity-70 ml-1">::SEC_OPS</span></span>
-            </a>
-            <div class="status-beacon hidden md:flex">
-                <span class="beacon-dot"></span>
-                <span>CIS_ENGINE // 15_RULES_ACTIVE</span>
+                <span class="font-mono text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary border border-primary font-bold">ROOT</span>
+            </div>
+            <div class="flex flex-col gap-1 pl-3 mt-1">
+                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.users' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-secondary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.users') }}">User Management</a>
+                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.rules' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.rules') }}">Security Rules</a>
+                <a class="flex items-center px-3 py-1.5 font-headline font-medium text-xs hover:bg-surface-container-high border-l-2 {% if request.endpoint == 'admin.audit' %}border-primary text-on-surface{% else %}border-outline text-on-surface-variant hover:border-primary hover:text-on-surface{% endif %} transition-all" href="{{ url_for('admin.audit') }}">Audit Log</a>
             </div>
         </div>
-
-        <ul class="nav-menu">
-            {% if session.get('user_id') %}
-                <li>
-                    <a href="{{ url_for('scans.dashboard') }}" class="nav-link {% if request.endpoint == 'scans.dashboard' %}active{% endif %}">
-                        <i class="fa-solid fa-table-columns"></i> Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('scans.upload') }}" class="nav-link {% if request.endpoint == 'scans.upload' %}active{% endif %}">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> + New Scan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('scans.history') }}" class="nav-link {% if request.endpoint == 'scans.history' %}active{% endif %}">
-                        <i class="fa-solid fa-clock-rotate-left"></i> History
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('analytics.analytics') }}" class="nav-link {% if request.endpoint == 'analytics.analytics' %}active{% endif %}">
-                        <i class="fa-solid fa-chart-pie"></i> Analytics
-                    </a>
-                </li>
-                {% if session.get('role') == 'admin' %}
-                    <li>
-                        <a href="{{ url_for('admin.users') }}" class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
-                            <i class="fa-solid fa-users-gear"></i> Users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('admin.rules') }}" class="nav-link {% if request.endpoint == 'admin.rules' %}active{% endif %}">
-                            <i class="fa-solid fa-sliders"></i> Rules
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('admin.audit') }}" class="nav-link {% if request.endpoint == 'admin.audit' %}active{% endif %}">
-                            <i class="fa-solid fa-file-shield"></i> Audit
-                        </a>
-                    </li>
-                {% endif %}
-
-                <!-- Theme Switcher Button -->
-                <li>
-                    <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle Bauhaus Light / Neon Tokyo Dark">
-                        <span class="dark:hidden">? Dark (Tokyo)</span>
-                        <span class="hidden dark:inline">¤ Light (Bauhaus)</span>
-                    </button>
-                </li>
-
-                <!-- User Profile Chip -->
-                <li class="ml-2 hidden sm:block">
-                    <div class="user-profile-chip">
-                        <div class="user-avatar">
-                            {{ session.get('email', 'U')[0]|upper }}
-                        </div>
-                        <span class="font-bold">{{ session.get('email', '').split('@')[0] }}</span>
-                        <span class="status-pill {% if session.get('role') == 'admin' %}pill-critical{% elif session.get('role') == 'analyst' %}pill-high{% else %}pill-low{% endif %}">
-                            {{ session.get('role') }}
-                        </span>
-                    </div>
-                </li>
-                <li>
-                    <a href="{{ url_for('auth.logout') }}" class="btn-signout" title="Sign Out">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </a>
-                </li>
-            {% else %}
-                <!-- Theme Switcher for Guests -->
-                <li>
-                    <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle Bauhaus Light / Neon Tokyo Dark">
-                        <span class="dark:hidden">? Dark (Tokyo)</span>
-                        <span class="hidden dark:inline">¤ Light (Bauhaus)</span>
-                    </button>
-                </li>
-                <li>
-                    <a href="{{ url_for('auth.login') }}" class="nav-link">Sign In</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('auth.register') }}" class="btn-action btn-azure">
-                        <i class="fa-solid fa-user-plus"></i> Register
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
+        {% endif %}
     </nav>
+</div>
 
-    <!-- Main Content Area -->
-    <main class="app-container">
-        <!-- Toast / Alert notifications -->
+<!-- Engine Status Box in Sidebar -->
+<div class="p-3 m-3 bg-surface-container border border-outline">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse"></span>
+            <span class="font-headline text-xs uppercase font-bold tracking-wide text-on-surface">Engine Active</span>
+        </div>
+        <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 bg-surface-container-high text-secondary border border-outline">v2.4.1</span>
+    </div>
+    <p class="font-mono text-[11px] text-on-surface-variant mt-1.5 uppercase font-medium">Node Cluster // PROD</p>
+</div>
+</aside>
+{% endif %}
+
+<!-- Main Content Layout wrapper -->
+<div class="{% if session.get('user_id') %}pl-64{% else %}w-full{% endif %}">
+    <!-- Top Header -->
+    <header class="fixed top-0 {% if session.get('user_id') %}left-64{% else %}left-0{% endif %} right-0 h-16 bg-surface-container-lowest border-b-2 border-outline z-40 flex items-center justify-between px-6">
+        <div class="flex items-center gap-3 font-headline text-sm font-bold">
+            <span class="flex items-center gap-2 px-2.5 py-1 bg-primary text-black dark:text-white border border-primary uppercase text-xs shadow-[0_0_8px_rgba(255,45,120,0.3)]">
+                <i class="fa-solid fa-shield-halved"></i> CloudGuard Core
+            </span>
+            <span class="text-outline font-black">/</span>
+            <span class="uppercase tracking-wide text-on-surface">Operational Console</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Theme Toggle Button -->
+            <button onclick="toggleTheme()" class="font-mono text-xs px-2.5 py-1.5 bg-surface-container hover:bg-surface-container-high border border-outline uppercase font-bold transition-all text-on-surface" title="Toggle Light Bauhaus / Dark Tokyo">
+                <span class="dark:hidden">? Dark (Tokyo)</span>
+                <span class="hidden dark:inline">¤ Light (Bauhaus)</span>
+            </button>
+
+            {% if session.get('user_id') %}
+            <div class="flex items-center gap-2.5 bg-surface-container px-3 py-1.5 border border-outline">
+                <div class="w-7 h-7 bg-primary text-black dark:text-white flex items-center justify-center font-bold text-xs border border-primary font-mono">
+                    {{ session.get('email', 'U')[0]|upper }}
+                </div>
+                <div class="flex flex-col text-left">
+                    <span class="font-mono text-xs text-on-surface font-bold leading-tight">{{ session.get('email', '') }}</span>
+                    <span class="font-mono text-[10px] text-secondary font-medium uppercase">SecOps Team Alpha</span>
+                </div>
+            </div>
+            <span class="font-mono text-xs px-2 py-1 bg-surface-container-high text-primary font-black border border-primary uppercase">
+                {{ session.get('role', 'viewer') }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low hover:bg-primary text-on-surface hover:text-white border border-outline hover:border-primary transition-all font-headline font-bold text-xs uppercase">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 border border-outline hover:bg-surface-container">Sign In</a>
+            <a href="{{ url_for('auth.register') }}" class="font-headline font-bold text-xs uppercase px-3 py-1.5 bg-primary text-black dark:text-white border border-primary">Register</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="w-full pt-20 px-6 pb-12 bg-background min-h-[calc(100vh-4rem)]">
+        <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="mb-6 space-y-2">
+                <div class="w-full mb-6 space-y-3">
                     {% for category, message in messages %}
-                        <div class="p-4 border-2 border-boundary bg-surface flex items-center justify-between" style="border-left-width: 6px; border-left-color: {% if category == 'success' %}var(--color-clean){% elif category == 'danger' %}var(--color-critical){% elif category == 'warning' %}var(--color-high){% else %}var(--accent-primary){% endif %};">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-triangle-exclamation{% elif category == 'warning' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} text-lg"></i>
-                                <span class="font-bold text-sm tracking-wide font-mono uppercase">{{ message }}</span>
+                        <div class="w-full bg-surface-container border-2 border-tertiary p-4 flex items-center justify-between transition-all">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-9 h-9 bg-tertiary text-black border border-tertiary flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                                    <span class="font-headline font-black text-tertiary text-base uppercase tracking-tight">Notification</span>
+                                    <span class="hidden sm:inline font-mono text-tertiary/70 font-bold">::</span>
+                                    <p class="font-body text-sm text-on-surface font-semibold">
+                                        {{ message }}
+                                    </p>
+                                </div>
                             </div>
+                            <button onclick="this.parentElement.remove()" class="w-8 h-8 flex items-center justify-center bg-surface text-tertiary border border-tertiary/50 hover:bg-tertiary hover:text-black transition-all">
+                                <i class="fa-solid fa-xmark text-sm font-bold"></i>
+                            </button>
                         </div>
                     {% endfor %}
                 </div>
@@ -194,22 +253,8 @@
 
         {% block content %}{% endblock %}
     </main>
+</div>
 
-    <!-- Enterprise Telemetry Footer -->
-    <footer class="enterprise-footer">
-        <div class="flex justify-between items-center max-w-7xl mx-auto flex-wrap gap-4">
-            <div>
-                <strong>CLOUDFENCE // SECURITY OPERATIONS CENTER</strong> &bull; v3.0.0 NEO_MINIMALIST
-            </div>
-            <div class="flex gap-4">
-                <span>SYSTEM_DESIGN :: PASS</span>
-                <span>RDBMS_3NF :: PASS</span>
-                <span>DP900_POWERBI :: READY</span>
-                <span>ZERO_TRUST :: ACTIVE</span>
-            </div>
-        </div>
-    </footer>
-
-    {% block scripts %}{% endblock %}
+{% block scripts %}{% endblock %}
 </body>
 </html>

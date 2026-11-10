@@ -1,140 +1,269 @@
 {% extends "base.html" %}
-{% block title %}SOC Executive Dashboard — CloudGuard{% endblock %}
+{% block title %}CloudGuard SecOps - Neon Tokyo Dashboard{% endblock %}
 {% block content %}
-<div class="page-hero">
-    <div>
-        <div class="breadcrumb">
-            <i class="fa-solid fa-terminal mr-1"></i> TELEMETRY // OVERVIEW_MESH
+<div class="flex flex-col w-full gap-6">
+
+    <!-- Flash Alert: High-Impact Dark Neon Banner -->
+    <div class="w-full bg-[#18151f] border-2 border-tertiary p-4 flex items-center justify-between transition-all" id="flash-banner">
+        <div class="flex items-center gap-3.5">
+            <div class="w-9 h-9 bg-tertiary text-black border border-tertiary flex items-center justify-center font-bold text-lg flex-shrink-0">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                <span class="font-headline font-black text-tertiary text-base uppercase tracking-tight">Active Posture</span>
+                <span class="hidden sm:inline font-mono text-tertiary/70 font-bold">::</span>
+                <p class="font-body text-sm text-[#e8e0f0] font-semibold">
+                    Continuous CIS Assessment: <span class="font-mono px-1.5 py-0.5 bg-[#0a0b14] border border-tertiary/50 text-white font-bold">15 Controls</span> actively monitoring configuration drift.
+                </p>
+            </div>
         </div>
-        <h1 class="page-title">Cloud Posture & Compliance</h1>
-        <p class="page-subtitle">Continuous posture monitoring across Azure Resource Manager & IaC manifests</p>
+        <div class="flex items-center gap-3">
+            <span class="font-mono text-[11px] px-2 py-1 bg-[#0a0b14] text-tertiary font-bold border border-tertiary/50 uppercase hidden md:inline-block">AUTO-ANALYZED</span>
+            <button class="w-8 h-8 flex items-center justify-center bg-[#0a0b14] text-tertiary border border-tertiary/50 hover:bg-tertiary hover:text-black transition-all" onclick="document.getElementById('flash-banner').remove()" title="Dismiss notification">
+                <i class="fa-solid fa-xmark text-sm font-bold"></i>
+            </button>
+        </div>
     </div>
-    <div class="flex gap-3">
-        <a href="{{ url_for('analytics.analytics') }}" class="btn-action btn-ghost">
-            <i class="fa-solid fa-chart-line"></i> Analytics // BI
-        </a>
-        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> + Ingest Config
-        </a>
+
+    <!-- Operational Header Area -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-outline pb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 text-primary font-mono text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-satellite-dish text-xs text-secondary"></i>
+                <span>Telemetry Snapshot // Production Mesh</span>
+            </div>
+            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Dashboard</h1>
+        </div>
+        <!-- Action Bar -->
+        <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center bg-surface-container px-3 py-1.5 border border-secondary gap-2">
+                <span class="w-2.5 h-2.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse"></span>
+                <span class="font-mono text-xs text-on-surface font-bold uppercase">SOC Live Sync</span>
+                <span class="font-mono text-xs px-1.5 py-0.5 bg-surface-container-high text-secondary font-black border border-outline">0.04s</span>
+            </div>
+            <a href="{{ url_for('analytics.analytics') }}" class="flex items-center gap-2 px-3.5 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+                <i class="fa-solid fa-sliders text-xs text-secondary"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-2 px-3.5 py-1.5 bg-primary hover:bg-primary/90 text-white font-headline font-bold text-xs uppercase border border-primary transition-all">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>+ New Scan</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Section 1: Summary Telemetry Metrics -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: Total Scans -->
+        <div class="relative bg-surface-container border-2 border-outline p-5 flex flex-col justify-between transition-all hover:border-secondary">
+            <div class="flex items-start justify-between">
+                <div class="flex flex-col">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider font-bold">Total Scans</span>
+                    <span class="font-headline text-3xl font-black text-on-surface mt-1">{{ total_scans }}</span>
+                </div>
+                <div class="w-12 h-12 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-upload text-lg"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 pt-4 mt-2 border-t-2 border-outline">
+                <span class="font-mono text-xs px-1.5 py-0.5 bg-secondary text-black font-black flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> Active
+                </span>
+                <span class="font-mono text-xs text-on-surface-variant font-medium">audited manifests</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Critical Findings -->
+        <div class="relative bg-surface-container border-2 border-primary p-5 flex flex-col justify-between transition-all">
+            <div class="flex items-start justify-between">
+                <div class="flex flex-col">
+                    <span class="font-mono text-xs text-primary uppercase tracking-wider font-bold">Critical Findings</span>
+                    <span class="font-headline text-3xl font-black text-primary mt-1">{{ critical_findings }}</span>
+                </div>
+                <div class="w-12 h-12 bg-primary text-white border border-primary flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 pt-4 mt-2 border-t-2 border-outline">
+                <span class="w-2.5 h-2.5 bg-primary shadow-[0_0_8px_#ff2d78] animate-pulse"></span>
+                <span class="font-mono text-xs text-primary font-black uppercase">Immediate patch needed</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Active Rules -->
+        <div class="relative bg-surface-container border-2 border-outline p-5 flex flex-col justify-between transition-all hover:border-secondary">
+            <div class="flex items-start justify-between">
+                <div class="flex flex-col">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider font-bold">Active Rules</span>
+                    <span class="font-headline text-3xl font-black text-on-surface mt-1">{{ rules_active }}</span>
+                </div>
+                <div class="w-12 h-12 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 pt-4 mt-2 border-t-2 border-outline">
+                <span class="font-mono text-xs px-1.5 py-0.5 bg-surface-container-high text-secondary border border-secondary/50 font-bold">v1.8</span>
+                <span class="font-mono text-xs text-on-surface-variant font-medium truncate">CIS Benchmark active</span>
+            </div>
+        </div>
+
+        <!-- Card 4: Last Scan Date -->
+        <div class="relative bg-surface-container border-2 border-outline p-5 flex flex-col justify-between transition-all hover:border-tertiary">
+            <div class="flex items-start justify-between">
+                <div class="flex flex-col">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider font-bold">Last Scan Date</span>
+                    <span class="font-headline text-lg font-black text-on-surface mt-1 leading-tight truncate">{{ last_scan_date }}</span>
+                </div>
+                <div class="w-12 h-12 bg-tertiary/10 text-tertiary border border-tertiary flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-clock text-lg"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 pt-4 mt-2 border-t-2 border-outline">
+                <i class="fa-regular fa-calendar text-xs text-tertiary"></i>
+                <span class="font-mono text-xs text-on-surface font-bold">Automated Ingestion</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Recent Scans Bauhaus Table (Neon Tokyo Dark Mode) -->
+    <section class="flex flex-col gap-4">
+        <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
+            <!-- Table Header & Toolbar -->
+            <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary/20 text-primary border border-primary flex items-center justify-center">
+                        <i class="fa-solid fa-layer-group text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-headline font-black text-xl text-on-surface uppercase tracking-tight">Recent Scans</h2>
+                        <p class="font-mono text-xs text-on-surface-variant">Continuous integration security artifacts &amp; cloud templates</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-on-surface-variant"></i>
+                        <input id="tableSearch" onkeyup="filterRecentTable()" class="w-full pl-8 pr-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/60 font-bold" placeholder="SEARCH TEMPLATES..." type="text"/>
+                    </div>
+                    <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white font-headline font-black text-xs uppercase border border-primary transition-all flex-shrink-0">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>New Scan</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Responsive Data Table -->
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse" id="recentScansTable">
+                    <thead>
+                        <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
+                            <th class="py-3 px-5 border-r border-outline" scope="col">Filename</th>
+                            <th class="py-3 px-5 border-r border-outline" scope="col">Date</th>
+                            <th class="py-3 px-5 border-r border-outline" scope="col">Risk Score</th>
+                            <th class="py-3 px-5 border-r border-outline" scope="col">Findings</th>
+                            <th class="py-3 px-5 text-right" scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body text-sm divide-y border-t border-outline divide-outline">
+                        {% if recent_scans %}
+                            {% for s in recent_scans %}
+                            <tr class="hover:bg-primary/10 transition-colors bg-surface-container/60">
+                                <td class="py-3.5 px-5 whitespace-nowrap border-r border-outline">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-8 h-8 bg-primary/20 text-primary border border-primary flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                                            <i class="fa-solid fa-file-code"></i>
+                                        </span>
+                                        <div class="flex flex-col">
+                                            <span class="font-mono text-xs text-on-surface font-bold hover:text-primary transition-colors">{{ s['filename'] }}</span>
+                                            <span class="font-mono text-[11px] text-on-surface-variant">#SCAN-{{ s['scan_id'] }} // Azure</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap font-mono text-xs text-on-surface-variant font-medium border-r border-outline">
+                                    {{ s['scanned_at'][:19] }}
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap border-r border-outline">
+                                    <span class="inline-flex items-center px-2 py-0.5 border font-mono text-xs font-black uppercase tracking-wider {% if s['risk_score'] == 'Critical' %}border-primary bg-primary/20 text-primary{% elif s['risk_score'] == 'High' %}border-[#f59e0b] bg-[#f59e0b]/20 text-[#f59e0b]{% elif s['risk_score'] == 'Medium' %}border-tertiary bg-tertiary/20 text-tertiary{% elif s['risk_score'] == 'Low' %}border-secondary bg-secondary/20 text-secondary{% else %}border-[#10b981] bg-[#10b981]/20 text-[#10b981]{% endif %}">
+                                        <i class="fa-solid {% if s['risk_score'] == 'Clean' %}fa-check{% elif s['risk_score'] == 'Critical' %}fa-circle-exclamation{% else %}fa-triangle-exclamation{% endif %} mr-1.5 text-[10px]"></i>{{ s['risk_score'] }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap border-r border-outline">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-headline font-bold text-on-surface text-sm">{{ s['total_findings'] }} issues</span>
+                                        <span class="font-mono text-xs text-primary bg-primary/10 border border-primary/40 px-1.5 py-0.5 font-bold">({{ s['critical_count'] }} Critical, {{ s['high_count'] }} High)</span>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap text-right">
+                                    <a class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-low hover:bg-primary text-on-surface hover:text-white font-headline text-xs font-bold uppercase border border-outline hover:border-primary transition-all" href="{{ url_for('scans.results', scan_id=s['scan_id']) }}">
+                                        <span>View Results</span>
+                                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-on-surface-variant font-mono text-xs uppercase">
+                                    No scans recorded yet. <a href="{{ url_for('scans.upload') }}" class="text-primary underline font-bold">Upload a configuration</a> to begin.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="px-5 py-3 bg-surface-container-low border-t-2 border-outline flex flex-col sm:flex-row items-center justify-between gap-3 text-on-surface">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="font-mono text-xs font-medium text-on-surface-variant">Showing <strong class="font-black text-on-surface">{{ recent_scans|length }}</strong> of <strong class="font-black text-on-surface">{{ total_scans }}</strong> scans</span>
+                    <span class="font-mono font-bold text-outline">::</span>
+                    <div class="flex items-center gap-1 bg-surface-container border border-outline px-2.5 py-1 font-mono text-xs font-bold">
+                        <i class="fa-solid fa-code text-[11px] text-secondary"></i>
+                        <span class="text-on-surface-variant">Jinja2 Binding: <code class="text-on-surface font-black bg-surface-container-highest px-1.5 py-0.5 text-secondary border border-outline">{% raw %}{% for s in recent_scans %}{% endraw %}</code></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 font-mono text-xs font-bold">
+                    <a href="{{ url_for('scans.history') }}" class="px-3 py-1 bg-surface-container hover:bg-surface-container-high border border-outline text-on-surface uppercase transition-all">
+                        Full Ledger &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Telemetry Health & Policy Footer Strip -->
+    <div class="bg-surface-container border-2 border-outline p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-3.5 h-3.5 bg-secondary shadow-[0_0_8px_#00f3ff] animate-pulse"></div>
+            <div class="flex flex-col">
+                <span class="font-headline font-black text-sm uppercase tracking-wide text-on-surface">Cluster Telemetry Synchronized</span>
+                <span class="font-mono text-xs text-on-surface-variant">Worker daemon <strong class="text-secondary font-bold">node-east-04</strong> reporting nominal throughput with zero dropped packets.</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-on-surface font-mono text-xs font-bold uppercase">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-high border border-outline"><i class="fa-solid fa-lock text-xs text-secondary"></i> TLS 1.3 Strict</span>
+            <span class="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-high border border-outline"><i class="fa-solid fa-fingerprint text-xs text-primary"></i> SHA-256 Validated</span>
+        </div>
     </div>
 </div>
 
-<!-- 4 Executive KPI Cards -->
-<div class="kpi-grid">
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-azure">
-            <i class="fa-solid fa-layer-group"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Audited Configurations</div>
-            <div class="kpi-number">{{ total_scans }}</div>
-        </div>
-    </div>
+<script>
+function filterRecentTable() {
+    const input = document.getElementById("tableSearch");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("recentScansTable");
+    const tr = table.getElementsByTagName("tr");
 
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-critical">
-            <i class="fa-solid fa-radiation"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Critical Findings</div>
-            <div class="kpi-number" style="color: var(--color-critical);">{{ critical_findings }}</div>
-        </div>
-    </div>
-
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-clean">
-            <i class="fa-solid fa-shield-check"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Active CIS Controls</div>
-            <div class="kpi-number" style="color: var(--color-clean);">{{ rules_active }} <span class="font-mono text-sm opacity-60">/ 15</span></div>
-        </div>
-    </div>
-
-    <div class="kpi-card">
-        <div class="kpi-icon-box kpi-icon-purple">
-            <i class="fa-regular fa-clock"></i>
-        </div>
-        <div class="kpi-content">
-            <div class="kpi-label">Latest Assessment</div>
-            <div class="kpi-number font-mono text-base truncate mt-1">{{ last_scan_date }}</div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Scans Section -->
-<div class="glass-card">
-    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-        <div class="flex items-center gap-2 font-bold uppercase tracking-wider text-sm font-mono">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span>RECENT CONFIGURATION AUDITS</span>
-        </div>
-        <a href="{{ url_for('scans.history') }}" class="font-mono text-xs uppercase font-bold tracking-wider hover:underline">
-            FULL AUDIT LOG ({{ total_scans }}) &rarr;
-        </a>
-    </div>
-
-    {% if recent_scans %}
-    <div class="table-shell">
-        <table class="enterprise-table">
-            <thead>
-                <tr>
-                    <th>Scan Ref</th>
-                    <th>Configuration Manifest</th>
-                    <th>Timestamp</th>
-                    <th>Calculated Risk</th>
-                    <th>Findings Breakdown</th>
-                    <th style="text-align: right;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in recent_scans %}
-                <tr>
-                    <td>
-                        <span class="code-pill">#SCAN-{{ s['scan_id'] }}</span>
-                    </td>
-                    <td>
-                        <div class="font-bold flex items-center gap-2">
-                            <i class="fa-regular fa-file-code"></i>
-                            {{ s['filename'] }}
-                        </div>
-                    </td>
-                    <td class="font-mono text-xs opacity-75">
-                        {{ s['scanned_at'][:19] }}
-                    </td>
-                    <td>
-                        <span class="status-pill {% if s['risk_score'] == 'Critical' %}pill-critical{% elif s['risk_score'] == 'High' %}pill-high{% elif s['risk_score'] == 'Medium' %}pill-medium{% elif s['risk_score'] == 'Low' %}pill-low{% else %}pill-clean{% endif %}">
-                            {{ s['risk_score'] }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="flex items-center gap-1 font-mono text-xs">
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-critical); font-weight: 700;">{{ s['critical_count'] }}C</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-high); font-weight: 700;">{{ s['high_count'] }}H</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-medium); font-weight: 700;">{{ s['medium_count'] }}M</span>
-                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-low); font-weight: 700;">{{ s['low_count'] }}L</span>
-                            <span class="ml-1 opacity-60">({{ s['total_findings'] }} total)</span>
-                        </div>
-                    </td>
-                    <td style="text-align: right;">
-                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
-                            View Report &rarr;
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="text-center py-12 border-2 border-dashed border-boundary">
-        <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 opacity-50"></i>
-        <h3 class="font-bold text-lg mb-1 uppercase tracking-wider font-mono">No Audits Run Yet</h3>
-        <p class="text-sm opacity-70 mb-4">Ingest an Azure JSON or YAML configuration file to generate security findings.</p>
-        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            Ingest First Configuration
-        </a>
-    </div>
-    {% endif %}
-</div>
+    for (let i = 1; i < tr.length; i++) {
+        let td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+            let txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
 {% endblock %}
