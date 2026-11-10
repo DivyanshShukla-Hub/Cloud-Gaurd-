@@ -1,45 +1,49 @@
 {% extends "base.html" %}
-{% block title %}Create Account â€” CloudGuard{% endblock %}
+{% block title %}Create Account — CloudGuard Security Operations{% endblock %}
 {% block content %}
-<div style="max-width: 440px; margin: 3.5rem auto 2rem auto;">
-    <div class="glass-card" style="box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 40px rgba(14, 165, 233, 0.1);">
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <div class="logo-shield" style="width: 54px; height: 54px; margin: 0 auto 1rem auto; font-size: 1.6rem; border-radius: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+<div class="max-w-md mx-auto my-12">
+    <div class="glass-card">
+        <div class="text-center mb-6">
+            <div class="logo-shield w-14 h-14 mx-auto mb-3 text-2xl font-bold">
                 <i class="fa-solid fa-user-plus"></i>
             </div>
-            <h2 style="color: #fff; font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px;">Register Identity</h2>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">New accounts default to Viewer role (RBAC)</p>
+            <h2 class="text-2xl font-extrabold uppercase font-mono tracking-tight">Register Operator</h2>
+            <p class="text-xs opacity-75 font-mono mt-1">// PROVISION_RBAC_ACCOUNT</p>
         </div>
 
-        <form action="{{ url_for('auth.register') }}" method="POST">
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-envelope" style="color: var(--azure);"></i> Work Email
+        <form action="{{ url_for('auth.register') }}" method="POST" class="space-y-4">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fa-solid fa-envelope mr-1"></i> Operator Email
                 </label>
-                <input type="email" name="email" class="form-control" placeholder="user@company.com" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required autofocus>
+                <input type="email" name="email" class="form-control" placeholder="analyst@cloudguard.com" required autofocus>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-lock" style="color: var(--azure);"></i> Account Password
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fa-solid fa-lock mr-1"></i> Set Passphrase
                 </label>
-                <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-lock" style="color: var(--azure);"></i> Confirm Password
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fa-solid fa-shield mr-1"></i> Access Role (RBAC)
                 </label>
-                <input type="password" name="confirm_password" class="form-control" placeholder="Repeat password" style="padding: 0.8rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; width: 100%;" required>
+                <select name="role" class="form-control">
+                    <option value="analyst" selected>Security Analyst (Upload & Scan)</option>
+                    <option value="viewer">Auditor / Viewer (Read Only)</option>
+                    <option value="admin">Platform Admin (Full Privileges)</option>
+                </select>
             </div>
 
-            <button type="submit" class="btn-action btn-azure" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; border-radius: 8px;">
-                <i class="fa-solid fa-user-check"></i> Register Account
+            <button type="submit" class="btn-action btn-azure w-full justify-center py-3">
+                <i class="fa-solid fa-user-check"></i> Provision Account &rarr;
             </button>
         </form>
 
-        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
-            Already registered? <a href="{{ url_for('auth.login') }}" style="color: var(--azure); font-weight: 600;">Sign in here</a>
+        <div class="text-center mt-6 text-xs font-mono">
+            EXISTING USER? <a href="{{ url_for('auth.login') }}" class="font-bold underline" style="color: var(--accent-primary);">SIGN IN</a>
         </div>
     </div>
 </div>

@@ -1,28 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Audit History â€” CloudGuard{% endblock %}
+{% block title %}Historical Assessments — CloudGuard{% endblock %}
 {% block content %}
 <div class="page-hero">
     <div>
         <div class="breadcrumb">
-            <i class="fa-solid fa-house"></i> Workspace / Audit Records
+            <i class="fa-solid fa-terminal mr-1"></i> LOGS // ASSESSMENT_HISTORY
         </div>
-        <h1 class="page-title">Configuration Audit History</h1>
-        <p class="page-subtitle">Historical archive of all evaluated cloud configurations and security postures</p>
+        <h1 class="page-title">Historical Assessments</h1>
+        <p class="page-subtitle">Complete chronological audit ledger of scanned Azure infrastructure configurations</p>
     </div>
-    <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Ingest New Configuration
-    </a>
+    <div class="flex gap-3">
+        <a href="{{ url_for('analytics.analytics') }}" class="btn-action btn-ghost">
+            <i class="fa-solid fa-chart-line"></i> Analytics View
+        </a>
+        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
+            <i class="fa-solid fa-cloud-arrow-up"></i> + Ingest Config
+        </a>
+    </div>
 </div>
 
 <div class="glass-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-        <div style="position: relative; width: 340px;">
-            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 0.85rem;"></i>
-            <input type="text" id="historySearch" placeholder="Search by file name or risk level..." style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.4rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.88rem; outline: none;" onkeyup="filterTable()">
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+        <div class="font-mono text-xs uppercase font-bold tracking-wider">
+            TOTAL RECORDS: {{ scans|length }}
         </div>
-        <div style="font-size: 0.82rem; color: var(--text-secondary);">
-            Total Assessments: <strong style="color: #fff;">{{ scans|length }}</strong>
-        </div>
+        <input type="text" id="scanSearch" placeholder="SEARCH BY FILENAME OR ID..." onkeyup="filterTable()" class="form-control text-xs font-mono max-w-xs" style="padding: 0.45rem 0.75rem;">
     </div>
 
     {% if scans %}
@@ -30,42 +32,47 @@
         <table class="enterprise-table" id="scansTable">
             <thead>
                 <tr>
-                    <th>Scan Reference</th>
-                    <th>Configuration Manifest</th>
-                    <th>Audit Timestamp</th>
+                    <th>Scan Ref</th>
+                    <th>Manifest Filename</th>
+                    <th>Timestamp</th>
                     <th>Calculated Risk</th>
-                    <th>Critical</th>
-                    <th>High</th>
-                    <th>Medium</th>
-                    <th>Low</th>
+                    <th>Breakdown (C/H/M/L)</th>
+                    <th>Total</th>
                     <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for s in scans %}
                 <tr>
-                    <td><span class="code-pill">#{{ s['scan_id'] }}</span></td>
                     <td>
-                        <strong style="color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
-                            {{ s['filename'] }}
-                        </strong>
+                        <span class="code-pill">#SCAN-{{ s['scan_id'] }}</span>
                     </td>
-                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                    <td class="font-bold flex items-center gap-2">
+                        <i class="fa-regular fa-file-code"></i>
+                        {{ s['filename'] }}
+                    </td>
+                    <td class="font-mono text-xs opacity-75">
                         {{ s['scanned_at'][:19] }}
                     </td>
                     <td>
-                        <span class="status-pill pill-{{ s['risk_score']|lower }}">
+                        <span class="status-pill {% if s['risk_score'] == 'Critical' %}pill-critical{% elif s['risk_score'] == 'High' %}pill-high{% elif s['risk_score'] == 'Medium' %}pill-medium{% elif s['risk_score'] == 'Low' %}pill-low{% else %}pill-clean{% endif %}">
                             {{ s['risk_score'] }}
                         </span>
                     </td>
-                    <td style="color: var(--critical); font-weight: 700;">{{ s['critical_count'] }}</td>
-                    <td style="color: var(--high); font-weight: 700;">{{ s['high_count'] }}</td>
-                    <td style="color: var(--medium); font-weight: 700;">{{ s['medium_count'] }}</td>
-                    <td style="color: var(--low); font-weight: 700;">{{ s['low_count'] }}</td>
+                    <td>
+                        <div class="flex items-center gap-1 font-mono text-xs">
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-critical); font-weight: 700;">{{ s['critical_count'] }}C</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-high); font-weight: 700;">{{ s['high_count'] }}H</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-medium); font-weight: 700;">{{ s['medium_count'] }}M</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-low); font-weight: 700;">{{ s['low_count'] }}L</span>
+                        </div>
+                    </td>
+                    <td class="font-mono text-xs font-bold">
+                        {{ s['total_findings'] }}
+                    </td>
                     <td style="text-align: right;">
-                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
-                            <i class="fa-solid fa-eye"></i> View Report
+                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                            Report &rarr;
                         </a>
                     </td>
                 </tr>
@@ -74,28 +81,31 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 3.5rem 1rem;">
-        <i class="fa-solid fa-clock-rotate-left" style="font-size: 2.5rem; color: #334155; margin-bottom: 1rem;"></i>
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">No Past Assessments Recorded</h3>
-        <p style="color: var(--text-secondary); font-size: 0.88rem; max-width: 440px; margin: 0 auto 1.5rem auto;">
-            Ingest and scan a cloud infrastructure configuration file to start tracking assessment history.
-        </p>
-        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Start First Audit
-        </a>
+    <div class="text-center py-12">
+        <p class="font-mono text-sm opacity-70">No assessments recorded in database.</p>
     </div>
     {% endif %}
 </div>
 
 <script>
 function filterTable() {
-    const input = document.getElementById("historySearch");
-    const filter = input.value.toLowerCase();
-    const rows = document.querySelectorAll("#scansTable tbody tr");
-    rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(filter) ? "" : "none";
-    });
+    const input = document.getElementById("scanSearch");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("scansTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        let tdFile = tr[i].getElementsByTagName("td")[1];
+        let tdId = tr[i].getElementsByTagName("td")[0];
+        if (tdFile || tdId) {
+            let txtValue = (tdFile.textContent || tdFile.innerText) + " " + (tdId.textContent || tdId.innerText);
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
 }
 </script>
 {% endblock %}

@@ -1,131 +1,127 @@
 {% extends "base.html" %}
-{% block title %}Audit Report â€” {{ scan['filename'] }} â€” CloudGuard{% endblock %}
+{% block title %}Audit Report — {{ scan['filename'] }} — CloudGuard{% endblock %}
 {% block content %}
 <div class="page-hero">
     <div>
         <div class="breadcrumb">
-            <a href="{{ url_for('scans.history') }}" style="color: var(--azure);"><i class="fa-solid fa-clock-rotate-left"></i> Scans</a> / Report #{{ scan['scan_id'] }}
+            <i class="fa-solid fa-terminal mr-1"></i> SCAN_COMPLETE :: {{ scan['filename'] }}
         </div>
         <h1 class="page-title">Configuration Security Assessment</h1>
         <p class="page-subtitle">
-            Target: <strong style="color: #fff;"><i class="fa-regular fa-file-code" style="color: var(--azure);"></i> {{ scan['filename'] }}</strong> &bull;
-            Audited At: {{ scan['scanned_at'][:19] }} &bull;
-            Assessment ID: <span class="code-pill">#{{ scan['scan_id'] }}</span>
+            TARGET: <strong class="font-mono">{{ scan['filename'] }}</strong> &bull;
+            AUDITED: <span class="font-mono">{{ scan['scanned_at'][:19] }}</span> &bull;
+            ASSESSMENT_ID: <span class="code-pill">#{{ scan['scan_id'] }}</span>
         </p>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
+    <div class="flex gap-3">
         <button onclick="window.print()" class="btn-action btn-ghost">
             <i class="fa-solid fa-print"></i> Export / Print
         </button>
         <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-rotate-right"></i> Audit Another
+            <i class="fa-solid fa-rotate-right"></i> + Audit Another
         </a>
     </div>
 </div>
 
 <!-- Executive Summary Banner -->
-<div class="glass-card" style="background: radial-gradient(ellipse at 100% 0%, rgba(14, 165, 233, 0.08), transparent 70%), linear-gradient(180deg, rgba(16, 24, 39, 0.9) 0%, rgba(12, 18, 30, 0.95) 100%);">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 1.25rem;">
-            <div style="width: 72px; height: 72px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; border: 2px solid; {% if scan['risk_score'] == 'Critical' %}background: var(--critical-bg); border-color: var(--critical); color: var(--critical);{% elif scan['risk_score'] == 'High' %}background: var(--high-bg); border-color: var(--high); color: var(--high);{% elif scan['risk_score'] == 'Medium' %}background: var(--medium-bg); border-color: var(--medium); color: var(--medium);{% elif scan['risk_score'] == 'Low' %}background: var(--low-bg); border-color: var(--low); color: var(--low);{% else %}background: var(--clean-bg); border-color: var(--clean); color: var(--clean);{% endif %}">
-                <i class="fa-solid {% if scan['risk_score'] == 'Clean' %}fa-shield-check{% else %}fa-shield-virus{% endif %}"></i>
+<div class="glass-card mb-6">
+    <div class="flex justify-between items-center flex-wrap gap-6">
+        <div class="flex items-center gap-5">
+            <div class="w-16 h-16 border-2 border-boundary flex items-center justify-center text-2xl font-bold font-mono" style="background: {% if scan['risk_score'] == 'Critical' %}var(--color-critical); color: #fff;{% elif scan['risk_score'] == 'High' %}var(--color-high); color: #1a1a1a;{% elif scan['risk_score'] == 'Medium' %}var(--color-medium); color: #1a1a1a;{% elif scan['risk_score'] == 'Low' %}var(--color-low); color: #fff;{% else %}var(--color-clean); color: #1a1a1a;{% endif %}">
+                <i class="fa-solid {% if scan['risk_score'] == 'Clean' %}fa-shield-check{% else %}fa-radiation{% endif %}"></i>
             </div>
             <div>
-                <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.75px; color: var(--text-tertiary);">Overall Risk Rating</div>
-                <div style="font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: -0.5px;">
+                <div class="font-mono text-xs uppercase tracking-wider text-muted font-bold">OVERALL RISK RATING</div>
+                <div class="text-3xl font-extrabold tracking-tight">
                     {{ scan['risk_score'] }} Severity Level
                 </div>
-                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                <div class="text-sm opacity-75 mt-0.5 font-mono">
                     {% if scan['total_findings'] == 0 %}
-                        All 15 security benchmark rules successfully passed.
+                        ALL 15 SECURITY BENCHMARK CONTROLS PASSED // COMPLIANT
                     {% else %}
-                        {{ scan['total_findings'] }} misconfigurations require architectural remediation.
+                        {{ scan['total_findings'] }} MISCONFIGURATIONS REQUIRE ARCHITECTURAL REMEDIATION
                     {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- Severity Tally Pills -->
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <div style="background: var(--critical-bg); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 0.65rem 1rem; text-align: center; min-width: 85px;">
-                <div style="font-size: 1.35rem; font-weight: 800; color: var(--critical);">{{ scan['critical_count'] }}</div>
-                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #fca5a5;">Critical</div>
+        <div class="flex gap-3 flex-wrap">
+            <div class="border-2 border-boundary p-3 text-center min-w-[90px] bg-surface">
+                <div class="text-2xl font-extrabold font-mono" style="color: var(--color-critical);">{{ scan['critical_count'] }}</div>
+                <div class="text-xs uppercase font-bold font-mono opacity-70">Critical</div>
             </div>
-            <div style="background: var(--high-bg); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 10px; padding: 0.65rem 1rem; text-align: center; min-width: 85px;">
-                <div style="font-size: 1.35rem; font-weight: 800; color: var(--high);">{{ scan['high_count'] }}</div>
-                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #fdba74;">High</div>
+            <div class="border-2 border-boundary p-3 text-center min-w-[90px] bg-surface">
+                <div class="text-2xl font-extrabold font-mono" style="color: var(--color-high);">{{ scan['high_count'] }}</div>
+                <div class="text-xs uppercase font-bold font-mono opacity-70">High</div>
             </div>
-            <div style="background: var(--medium-bg); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 0.65rem 1rem; text-align: center; min-width: 85px;">
-                <div style="font-size: 1.35rem; font-weight: 800; color: var(--medium);">{{ scan['medium_count'] }}</div>
-                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #fde047;">Medium</div>
+            <div class="border-2 border-boundary p-3 text-center min-w-[90px] bg-surface">
+                <div class="text-2xl font-extrabold font-mono" style="color: var(--color-medium);">{{ scan['medium_count'] }}</div>
+                <div class="text-xs uppercase font-bold font-mono opacity-70">Medium</div>
             </div>
-            <div style="background: var(--low-bg); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 0.65rem 1rem; text-align: center; min-width: 85px;">
-                <div style="font-size: 1.35rem; font-weight: 800; color: var(--low);">{{ scan['low_count'] }}</div>
-                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #7dd3fc;">Low</div>
+            <div class="border-2 border-boundary p-3 text-center min-w-[90px] bg-surface">
+                <div class="text-2xl font-extrabold font-mono" style="color: var(--color-low);">{{ scan['low_count'] }}</div>
+                <div class="text-xs uppercase font-bold font-mono opacity-70">Low</div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Findings List Header with Interactive Filters -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-    <div class="card-heading" style="font-size: 1.15rem;">
-        <i class="fa-solid fa-triangle-exclamation" style="color: var(--high);"></i>
-        <span>Security Findings ({{ findings|length }})</span>
+<div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+    <div class="font-mono text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-list-check"></i>
+        <span>SECURITY FINDINGS ({{ findings|length }})</span>
     </div>
 
     <!-- Severity Filter Buttons -->
-    <div style="display: flex; gap: 0.4rem;" id="filterBar">
-        <button class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="filterFindings('all')">All ({{ findings|length }})</button>
+    <div class="flex gap-2" id="filterBar">
+        <button class="btn-action btn-ghost text-xs py-1 px-3 active" onclick="filterFindings('all')">All ({{ findings|length }})</button>
         {% if scan['critical_count'] > 0 %}
-            <button class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(239, 68, 68, 0.4); color: var(--critical);" onclick="filterFindings('Critical')">Critical ({{ scan['critical_count'] }})</button>
+        <button class="btn-action btn-ghost text-xs py-1 px-3" onclick="filterFindings('Critical')">Critical ({{ scan['critical_count'] }})</button>
         {% endif %}
         {% if scan['high_count'] > 0 %}
-            <button class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(249, 115, 22, 0.4); color: var(--high);" onclick="filterFindings('High')">High ({{ scan['high_count'] }})</button>
+        <button class="btn-action btn-ghost text-xs py-1 px-3" onclick="filterFindings('High')">High ({{ scan['high_count'] }})</button>
         {% endif %}
         {% if scan['medium_count'] > 0 %}
-            <button class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(245, 158, 11, 0.4); color: var(--medium);" onclick="filterFindings('Medium')">Medium ({{ scan['medium_count'] }})</button>
+        <button class="btn-action btn-ghost text-xs py-1 px-3" onclick="filterFindings('Medium')">Medium ({{ scan['medium_count'] }})</button>
         {% endif %}
         {% if scan['low_count'] > 0 %}
-            <button class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(56, 189, 248, 0.4); color: var(--low);" onclick="filterFindings('Low')">Low ({{ scan['low_count'] }})</button>
+        <button class="btn-action btn-ghost text-xs py-1 px-3" onclick="filterFindings('Low')">Low ({{ scan['low_count'] }})</button>
         {% endif %}
     </div>
 </div>
 
-<!-- Findings Cards -->
 {% if findings %}
-    <div id="findingsContainer">
+    <div class="space-y-4" id="findingsContainer">
         {% for f in findings %}
-        <div class="finding-card severity-{{ f['severity']|lower }}" data-severity="{{ f['severity'] }}">
-            <div class="finding-header">
-                <div style="display: flex; align-items: center; gap: 0.65rem;">
-                    <span class="status-pill pill-{{ f['severity']|lower }}">
-                        <i class="fa-solid fa-circle-exclamation"></i> {{ f['severity'] }}
+        <div class="finding-card glass-card p-5 border-2 border-boundary" data-severity="{{ f['severity'] }}">
+            <div class="flex justify-between items-start flex-wrap gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="status-pill {% if f['severity'] == 'Critical' %}pill-critical{% elif f['severity'] == 'High' %}pill-high{% elif f['severity'] == 'Medium' %}pill-medium{% else %}pill-low{% endif %}">
+                        {{ f['severity'] }}
                     </span>
-                    <span class="code-pill">Rule #{{ f['rule_id'] }}</span>
-                    <span class="finding-title">{{ f['rule_name'] }}</span>
+                    <h3 class="font-bold text-base font-mono uppercase tracking-wide">
+                        {{ f['rule_name'] }}
+                    </h3>
                 </div>
-                <span style="color: var(--text-tertiary); font-size: 0.78rem;">
-                    CIS Benchmark Control
-                </span>
+                <div class="font-mono text-xs opacity-60">
+                    CATEGORY // {{ f['category_name'] }}
+                </div>
             </div>
 
-            <!-- Detail Condition -->
-            <div style="margin: 0.75rem 0; font-size: 0.92rem; color: #e2e8f0; display: flex; align-items: flex-start; gap: 0.5rem;">
-                <i class="fa-solid fa-arrow-right" style="color: var(--azure); margin-top: 0.3rem; font-size: 0.75rem;"></i>
-                <div>
-                    <strong>Observed Condition:</strong> {{ f['detail'] }}
-                </div>
+            <!-- Finding Detail -->
+            <div class="p-3 border-2 border-boundary bg-surface-subtle font-mono text-xs mb-3">
+                <div class="opacity-60 mb-1">// TELEMETRY DETAIL:</div>
+                <div class="font-bold">{{ f['detail'] }}</div>
             </div>
 
             <!-- Fix Recommendation Box -->
-            <div class="remediation-box">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                    <div style="font-weight: 700; display: flex; align-items: center; gap: 0.45rem;">
-                        <i class="fa-solid fa-wrench"></i> Recommended Remediation
-                    </div>
+            <div class="p-3 border-2 border-boundary bg-surface">
+                <div class="font-mono text-xs font-bold uppercase mb-1 flex items-center gap-2" style="color: var(--color-clean);">
+                    <i class="fa-solid fa-wrench"></i> RECOMMENDED REMEDIATION:
                 </div>
-                <div style="color: #6ee7b7; font-size: 0.88rem;">
+                <div class="text-sm font-sans">
                     {{ f['fix_guidance'] }}
                 </div>
             </div>
@@ -133,28 +129,28 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="glass-card" style="text-align: center; padding: 4rem 1.5rem; border-color: rgba(16, 185, 129, 0.3);">
-        <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--clean); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; color: var(--clean); font-size: 2rem;">
-            <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <h2 style="color: #fff; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Zero Misconfigurations Found!</h2>
-        <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem auto; font-size: 0.92rem;">
-            The uploaded configuration satisfies all 15 cloud security benchmarks. Encryption, network perimeters, IAM scopes, and auditing controls are properly hardened.
+    <div class="glass-card text-center py-16">
+        <i class="fa-solid fa-shield-check text-5xl mb-4" style="color: var(--color-clean);"></i>
+        <h2 class="text-2xl font-extrabold uppercase font-mono mb-2">Zero Vulnerabilities Detected</h2>
+        <p class="text-sm opacity-75 max-w-lg mx-auto font-sans">
+            Congratulations! This configuration file successfully satisfies all 15 CIS security controls with zero detected misconfigurations.
         </p>
-        <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Audit Another Resource
-        </a>
     </div>
 {% endif %}
 
 <script>
 function filterFindings(sev) {
-    const cards = document.querySelectorAll("#findingsContainer .finding-card");
-    cards.forEach(c => {
-        if (sev === "all" || c.getAttribute("data-severity") === sev) {
-            c.style.display = "block";
+    const cards = document.querySelectorAll('.finding-card');
+    const buttons = document.querySelectorAll('#filterBar button');
+    
+    buttons.forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    cards.forEach(card => {
+        if (sev === 'all' || card.getAttribute('data-severity') === sev) {
+            card.style.display = 'block';
         } else {
-            c.style.display = "none";
+            card.style.display = 'none';
         }
     });
 }

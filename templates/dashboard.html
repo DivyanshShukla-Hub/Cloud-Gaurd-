@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}SOC Executive Dashboard â€” CloudGuard{% endblock %}
+{% block title %}SOC Executive Dashboard — CloudGuard{% endblock %}
 {% block content %}
 <div class="page-hero">
     <div>
         <div class="breadcrumb">
-            <i class="fa-solid fa-house"></i> SOC Workspace / Overview
+            <i class="fa-solid fa-terminal mr-1"></i> TELEMETRY // OVERVIEW_MESH
         </div>
-        <h1 class="page-title">Cloud Posture & Compliance Dashboard</h1>
-        <p class="page-subtitle">Real-time posture monitoring across Azure Resource Manager and Infrastructure as Code configurations</p>
+        <h1 class="page-title">Cloud Posture & Compliance</h1>
+        <p class="page-subtitle">Continuous posture monitoring across Azure Resource Manager & IaC manifests</p>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
+    <div class="flex gap-3">
         <a href="{{ url_for('analytics.analytics') }}" class="btn-action btn-ghost">
-            <i class="fa-solid fa-chart-line"></i> Deep Analytics
+            <i class="fa-solid fa-chart-line"></i> Analytics // BI
         </a>
         <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Ingest New Config
+            <i class="fa-solid fa-cloud-arrow-up"></i> + Ingest Config
         </a>
     </div>
 </div>
@@ -36,8 +36,8 @@
             <i class="fa-solid fa-radiation"></i>
         </div>
         <div class="kpi-content">
-            <div class="kpi-label">Critical Vulnerabilities</div>
-            <div class="kpi-number" style="color: var(--critical);">{{ critical_findings }}</div>
+            <div class="kpi-label">Critical Findings</div>
+            <div class="kpi-number" style="color: var(--color-critical);">{{ critical_findings }}</div>
         </div>
     </div>
 
@@ -47,30 +47,30 @@
         </div>
         <div class="kpi-content">
             <div class="kpi-label">Active CIS Controls</div>
-            <div class="kpi-number" style="color: var(--clean);">{{ rules_active }} <span style="font-size: 0.9rem; color: var(--text-tertiary); font-weight: 500;">/ 15</span></div>
+            <div class="kpi-number" style="color: var(--color-clean);">{{ rules_active }} <span class="font-mono text-sm opacity-60">/ 15</span></div>
         </div>
     </div>
 
     <div class="kpi-card">
         <div class="kpi-icon-box kpi-icon-purple">
-            <i class="fa-regular fa-calendar-check"></i>
+            <i class="fa-regular fa-clock"></i>
         </div>
         <div class="kpi-content">
             <div class="kpi-label">Latest Assessment</div>
-            <div class="kpi-number" style="font-size: 1.35rem; margin-top: 0.4rem; color: #e2e8f0;">{{ last_scan_date }}</div>
+            <div class="kpi-number font-mono text-base truncate mt-1">{{ last_scan_date }}</div>
         </div>
     </div>
 </div>
 
 <!-- Recent Scans Section -->
 <div class="glass-card">
-    <div class="card-title-bar">
-        <div class="card-heading">
-            <i class="fa-solid fa-clock-rotate-left" style="color: var(--azure);"></i>
-            <span>Recent Configuration Audits</span>
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <div class="flex items-center gap-2 font-bold uppercase tracking-wider text-sm font-mono">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>RECENT CONFIGURATION AUDITS</span>
         </div>
-        <a href="{{ url_for('scans.history') }}" class="btn-action btn-ghost" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;">
-            Full Audit Log ({{ total_scans }}) <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        <a href="{{ url_for('scans.history') }}" class="font-mono text-xs uppercase font-bold tracking-wider hover:underline">
+            FULL AUDIT LOG ({{ total_scans }}) &rarr;
         </a>
     </div>
 
@@ -79,9 +79,9 @@
         <table class="enterprise-table">
             <thead>
                 <tr>
-                    <th>Scan Reference</th>
-                    <th>Configuration File</th>
-                    <th>Assessment Date</th>
+                    <th>Scan Ref</th>
+                    <th>Configuration Manifest</th>
+                    <th>Timestamp</th>
                     <th>Calculated Risk</th>
                     <th>Findings Breakdown</th>
                     <th style="text-align: right;">Action</th>
@@ -94,37 +94,31 @@
                         <span class="code-pill">#SCAN-{{ s['scan_id'] }}</span>
                     </td>
                     <td>
-                        <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fa-regular fa-file-code" style="color: var(--azure);"></i>
+                        <div class="font-bold flex items-center gap-2">
+                            <i class="fa-regular fa-file-code"></i>
                             {{ s['filename'] }}
                         </div>
                     </td>
-                    <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                    <td class="font-mono text-xs opacity-75">
                         {{ s['scanned_at'][:19] }}
                     </td>
                     <td>
-                        <span class="status-pill pill-{{ s['risk_score']|lower }}">
-                            <i class="fa-solid fa-shield-virus"></i> {{ s['risk_score'] }}
+                        <span class="status-pill {% if s['risk_score'] == 'Critical' %}pill-critical{% elif s['risk_score'] == 'High' %}pill-high{% elif s['risk_score'] == 'Medium' %}pill-medium{% elif s['risk_score'] == 'Low' %}pill-low{% else %}pill-clean{% endif %}">
+                            {{ s['risk_score'] }}
                         </span>
                     </td>
                     <td>
-                        {% if s['total_findings'] == 0 %}
-                            <span style="color: var(--clean); font-weight: 700; font-size: 0.85rem;">
-                                <i class="fa-solid fa-circle-check"></i> 0 Violations (Clean)
-                            </span>
-                        {% else %}
-                            <div style="display: flex; gap: 0.35rem; align-items: center;">
-                                <span style="font-weight: 700; margin-right: 0.35rem;">{{ s['total_findings'] }}</span>
-                                {% if s['critical_count'] > 0 %}<span class="status-pill pill-critical" style="padding: 0.15rem 0.45rem;">{{ s['critical_count'] }}C</span>{% endif %}
-                                {% if s['high_count'] > 0 %}<span class="status-pill pill-high" style="padding: 0.15rem 0.45rem;">{{ s['high_count'] }}H</span>{% endif %}
-                                {% if s['medium_count'] > 0 %}<span class="status-pill pill-medium" style="padding: 0.15rem 0.45rem;">{{ s['medium_count'] }}M</span>{% endif %}
-                                {% if s['low_count'] > 0 %}<span class="status-pill pill-low" style="padding: 0.15rem 0.45rem;">{{ s['low_count'] }}L</span>{% endif %}
-                            </div>
-                        {% endif %}
+                        <div class="flex items-center gap-1 font-mono text-xs">
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-critical); font-weight: 700;">{{ s['critical_count'] }}C</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-high); font-weight: 700;">{{ s['high_count'] }}H</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-medium); font-weight: 700;">{{ s['medium_count'] }}M</span>
+                            <span class="px-1.5 py-0.5 border border-boundary bg-surface" style="color: var(--color-low); font-weight: 700;">{{ s['low_count'] }}L</span>
+                            <span class="ml-1 opacity-60">({{ s['total_findings'] }} total)</span>
+                        </div>
                     </td>
                     <td style="text-align: right;">
-                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Inspect Report
+                        <a href="{{ url_for('scans.results', scan_id=s['scan_id']) }}" class="btn-action btn-ghost" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                            View Report &rarr;
                         </a>
                     </td>
                 </tr>
@@ -133,16 +127,12 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 3.5rem 1rem;">
-        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(14, 165, 233, 0.1); border: 1px dashed var(--azure); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; color: var(--azure); font-size: 1.5rem;">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-        </div>
-        <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 0.5rem;">No Cloud Configurations Audited Yet</h3>
-        <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.5rem auto; font-size: 0.9rem;">
-            Upload your Azure Resource Manager (ARM), Bicep export, or cloud configuration file to detect critical misconfigurations.
-        </p>
+    <div class="text-center py-12 border-2 border-dashed border-boundary">
+        <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 opacity-50"></i>
+        <h3 class="font-bold text-lg mb-1 uppercase tracking-wider font-mono">No Audits Run Yet</h3>
+        <p class="text-sm opacity-70 mb-4">Ingest an Azure JSON or YAML configuration file to generate security findings.</p>
         <a href="{{ url_for('scans.upload') }}" class="btn-action btn-azure">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Ingest First Configuration
+            Ingest First Configuration
         </a>
     </div>
     {% endif %}
