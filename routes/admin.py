@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask_bcrypt import Bcrypt
 from models.db import get_db, log_audit
 from routes.auth import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+bcrypt = Bcrypt()
 
 
 @admin_bp.route("/users")
@@ -13,6 +15,45 @@ def users():
         "SELECT user_id, email, role, created_at, is_active FROM users ORDER BY created_at DESC"
     ).fetchall()
     return render_template("admin/users.html", users=user_list)
+
+
+@admin_bp.route("/users/create", methods=["POST"])
+@admin_required
+def create_user():
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+    role = request.form.get("role", "viewer").lower()
+
+    if not email or not password:
+        flash("Email and password are required to create a user.", "danger")
+        return redirect(url_for("admin.users"))
+
+    if len(password) < 6:
+        flash("Password must be at least 6 characters long.", "danger")
+        return redirect(url_for("admin.users"))
+
+    if role not in ["admin", "analyst", "viewer"]:
+        flash("Invalid role specified.", "danger")
+        return redirect(url_for("admin.users"))
+
+    db = get_db()
+    existing = db.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
+    if existing:
+        flash(f"User with email '{email}' already exists.", "danger")
+        return redirect(url_for("admin.users"))
+
+    pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, ?, 1)",
+        (email, pw_hash, role),
+    )
+    new_uid = cursor.lastrowid
+    db.commit()
+
+    log_audit(session["user_id"], "CREATE_USER", f"Admin created user #{new_uid} ({email}) with role '{role}'")
+    flash(f"User {email} successfully created with role '{role}'.", "success")
+    return redirect(url_for("admin.users"))
 
 
 @admin_bp.route("/users/<int:user_id>/role", methods=["POST"])

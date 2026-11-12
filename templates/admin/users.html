@@ -11,9 +11,13 @@
                 <span>ADMINISTRATION // RBAC_GOVERNANCE</span>
             </div>
             <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Identity &amp; Access Management</h1>
-            <p class="font-mono text-xs text-on-surface-variant">Manage user roles (Admin, Analyst, Viewer) and activate or suspend platform access</p>
+            <p class="font-mono text-xs text-on-surface-variant">Manage user roles (Admin, Analyst, Viewer), provision new team members, and activate or suspend platform access</p>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
+            <button onclick="toggleAddUserModal()" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary transition-all cursor-pointer">
+                <i class="fa-solid fa-user-plus text-xs"></i>
+                <span>+ Provision User</span>
+            </button>
             <a href="{{ url_for('admin.rules') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
                 <i class="fa-solid fa-sliders text-xs text-secondary"></i>
                 <span>Security Rules</span>
@@ -23,6 +27,45 @@
                 <span>System Audit</span>
             </a>
         </div>
+    </div>
+
+    <!-- Quick Add User Collapsible Panel -->
+    <div id="addUserPanel" class="hidden bg-surface-container border-2 border-primary p-5 transition-all">
+        <div class="flex items-center justify-between border-b-2 border-outline pb-3 mb-4">
+            <div class="flex items-center gap-2 font-headline font-black text-sm uppercase text-on-surface">
+                <i class="fa-solid fa-user-shield text-[#e11d48] dark:text-primary"></i>
+                <span>PROVISION NEW OPERATOR / DIRECTORY USER</span>
+            </div>
+            <button onclick="toggleAddUserModal()" class="text-on-surface-variant hover:text-on-surface font-mono text-xs">
+                <i class="fa-solid fa-xmark"></i> CLOSE
+            </button>
+        </div>
+        <form action="{{ url_for('admin.create_user') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div class="sm:col-span-2">
+                <label class="block font-mono text-[11px] font-bold uppercase text-on-surface-variant mb-1">Operator Email</label>
+                <input type="email" name="email" required placeholder="analyst@cloudguard.com" class="w-full px-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/50">
+            </div>
+            <div>
+                <label class="block font-mono text-[11px] font-bold uppercase text-on-surface-variant mb-1">Password (Min 6 Chars)</label>
+                <input type="password" name="password" minlength="6" required placeholder="••••••••" class="w-full px-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/50">
+            </div>
+            <div>
+                <label class="block font-mono text-[11px] font-bold uppercase text-on-surface-variant mb-1">RBAC Role</label>
+                <select name="role" class="w-full px-3 py-1.5 bg-surface-container-lowest border border-outline text-on-surface font-mono text-xs font-bold focus:border-secondary focus:ring-0 focus:outline-none">
+                    <option value="analyst" selected>Analyst (Upload & Scan)</option>
+                    <option value="viewer">Viewer (Read Only)</option>
+                    <option value="admin">Admin (Full Control)</option>
+                </select>
+            </div>
+            <div class="sm:col-span-4 flex justify-end gap-2 pt-2">
+                <button type="button" onclick="toggleAddUserModal()" class="px-3 py-1.5 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline">
+                    Cancel
+                </button>
+                <button type="submit" class="px-5 py-1.5 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary">
+                    <i class="fa-solid fa-plus mr-1"></i> Create Operator
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Users Table Card -->
@@ -36,7 +79,13 @@
                     Registered Directory Users ({{ users|length }})
                 </div>
             </div>
-            <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase">ROOT_IAM_CONSOLE</span>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAddUserModal()" class="font-mono text-xs px-2.5 py-1 bg-surface-container hover:bg-primary text-on-surface hover:text-black dark:hover:text-white border border-outline transition-all font-bold uppercase flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus text-[11px]"></i>
+                    <span>+ Add User</span>
+                </button>
+                <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase hidden sm:inline">ROOT_IAM_CONSOLE</span>
+            </div>
         </div>
 
         <div class="overflow-x-auto w-full">
@@ -121,4 +170,16 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleAddUserModal() {
+    const panel = document.getElementById('addUserPanel');
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        panel.classList.add('hidden');
+    }
+}
+</script>
 {% endblock %}
