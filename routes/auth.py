@@ -112,6 +112,18 @@ def register():
             flash("All fields are required.", "danger")
             return render_template("register.html")
 
+        # Verify Organization Security Passcode (Anti-Bot Gatekeeper)
+        from flask import current_app
+        org_code = request.form.get("org_code", "").strip()
+        required_code = current_app.config.get("REGISTRATION_ACCESS_CODE", "CG-SECOPS-2026")
+        if org_code != required_code:
+            flash(
+                "Access Denied: Invalid Organization Security Passcode. "
+                "Unauthorized bot and spam registrations are blocked.",
+                "danger",
+            )
+            return render_template("register.html"), 403
+
         # Validate Email Format & Reject Disposable/Throwaway Domains
         is_valid_email, email_err = validate_email_format(email)
         if not is_valid_email:
@@ -132,39 +144,19 @@ def register():
             flash("An account with that email already exists.", "danger")
             return render_template("register.html")
 
-        # Generate 6-digit OTP and store pending registration state
-        otp_code = generate_otp()
+        # Commit operator directly into database with default viewer role
         pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
-
-        session["pending_reg"] = {
-            "email": email,
-            "password_hash": pw_hash,
-            "otp": otp_code,
-            "expires_at": time.time() + 600,  # 10 minutes expiry
-            "attempts": 0,
-        }
-
-        # Attempt real email dispatch via SMTP
-        sent, msg = send_otp_email(email, otp_code)
-        if not sent:
-            from flask import current_app
-            if current_app.config.get("TESTING"):
-                flash(f"A 6-digit verification code has been dispatched to {email}. Enter it below to activate.", "info")
-                return redirect(url_for("auth.verify_otp"))
-
-            flash(
-                "Email delivery failed: Outbound SMTP mail service is not configured on this server. "
-                "To receive real email OTPs, set the SMTP_HOST, SMTP_USER, and SMTP_PASS environment variables. "
-                "In the meantime, you can sign in with the pre-seeded Admin, Analyst, or Viewer accounts.",
-                "danger",
-            )
-            return render_template("register.html")
-
-        flash(
-            f"A 6-digit verification passcode has been sent to {email}. Please check your inbox (and spam folder).",
-            "info",
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, ?, 1)",
+            (email, pw_hash, "viewer"),
         )
-        return redirect(url_for("auth.verify_otp"))
+        new_uid = cursor.lastrowid
+        db.commit()
+
+        log_audit(new_uid, "USER_REGISTER", f"Registered and authorized {email} via Organization Passcode")
+        flash(f"Account for {email} authorized and provisioned successfully! Please sign in.", "success")
+        return redirect(url_for("auth.login"))
 
     return render_template("register.html")
 

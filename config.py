@@ -6,6 +6,7 @@ class Config:
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
     MAX_CONTENT_LENGTH = 1 * 1024 * 1024  # 1MB limit
     ALLOWED_EXTENSIONS = {'json', 'yaml', 'yml'}
+    REGISTRATION_ACCESS_CODE = os.environ.get('REGISTRATION_ACCESS_CODE', 'CG-SECOPS-2026')
     
     # Disable browser caching of static assets & force template auto-reload
     SEND_FILE_MAX_AGE_DEFAULT = 0
