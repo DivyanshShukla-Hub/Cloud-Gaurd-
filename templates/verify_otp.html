@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Verify Operator Email — CloudGuard Security Operations{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto my-4 sm:my-8 px-2 sm:px-0">
+    <div class="bg-surface-container border-2 border-outline p-5 sm:p-8">
+        <div class="text-center mb-6 border-b-2 border-outline pb-5">
+            <div class="w-14 h-14 mx-auto mb-3 bg-secondary text-black dark:text-white border-2 border-outline flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <h2 class="font-headline text-xl sm:text-2xl font-black uppercase tracking-tight text-on-surface">Verify Security OTP</h2>
+            <p class="font-mono text-xs text-secondary font-bold mt-1">// OPERATOR_IDENTITY_CHALLENGE</p>
+        </div>
+
+        <div class="mb-5 p-3.5 bg-surface-container-low border border-outline">
+            <div class="flex items-center gap-2 font-mono text-xs font-bold text-on-surface mb-1">
+                <i class="fa-solid fa-shield-halved text-secondary"></i>
+                <span>TARGET IDENTITY:</span>
+            </div>
+            <div class="font-mono text-xs text-[#0284c7] dark:text-[#38bdf8] font-bold break-all">
+                {{ email }}
+            </div>
+            <p class="font-mono text-[11px] text-on-surface-variant mt-2 leading-relaxed">
+                Enter the 6-digit one-time passcode to prove address ownership and activate your security operator access.
+            </p>
+        </div>
+
+        <form action="{{ url_for('auth.verify_otp') }}" method="POST" class="space-y-4">
+            <div>
+                <label class="block font-mono text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 text-center">
+                    6-Digit Verification Passcode
+                </label>
+                <input type="text"
+                       name="otp_code"
+                       id="otpCodeInput"
+                       required
+                       maxlength="6"
+                       pattern="[0-9]{6}"
+                       inputmode="numeric"
+                       autocomplete="one-time-code"
+                       placeholder="••••••"
+                       class="w-full text-center text-2xl font-mono font-black tracking-[0.5em] px-4 py-3 bg-surface-container-lowest border-2 border-outline text-on-surface focus:border-secondary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/40"
+                       autofocus>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-4 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-sm uppercase tracking-wider border-2 border-outline dark:border-primary transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-key"></i>
+                <span>Verify &amp; Activate Account &rarr;</span>
+            </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-outline flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <form action="{{ url_for('auth.resend_otp') }}" method="POST" class="inline">
+                <button type="submit" class="font-mono text-xs font-bold text-secondary hover:underline cursor-pointer">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Resend Passcode
+                </button>
+            </form>
+            <a href="{{ url_for('auth.register') }}" class="font-mono text-xs text-on-surface-variant hover:text-on-surface underline">
+                Cancel Registration
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

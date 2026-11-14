@@ -37,6 +37,9 @@ class SecurityTestSuite(unittest.TestCase):
             import shutil
             shutil.rmtree("test_sec_uploads", ignore_errors=True)
 
+    def setUp(self):
+        self.client.get("/logout")
+
     def test_01_sql_injection_defense(self):
         """Verifies parameterized queries prevent SQL injection authentication bypass."""
         payloads = [
@@ -63,6 +66,11 @@ class SecurityTestSuite(unittest.TestCase):
             "password": "Password123",
             "confirm_password": "Password123"
         }, follow_redirects=True)
+
+        # Complete 6-digit OTP verification
+        with self.client.session_transaction() as sess:
+            otp_code = sess.get("pending_reg", {}).get("otp", "")
+        self.client.post("/verify-otp", data={"otp_code": otp_code}, follow_redirects=True)
 
         # Login as viewer
         self.client.post("/login", data={
@@ -114,6 +122,26 @@ class SecurityTestSuite(unittest.TestCase):
                 self.assertEqual(len(phash), 60)
                 self.assertNotIn("Admin@123", phash)
                 self.assertNotIn("Password123", phash)
+
+    def test_06_email_otp_and_rate_limiting(self):
+        """Verifies OTP registration flow, fake email rejection, and rate limit enforcement."""
+        from services.security_guard import rate_limiter
+
+        # 1. Fake email domain rejection
+        res = self.client.post("/register", data={
+            "email": "bot@fake.com",
+            "password": "Password123",
+            "confirm_password": "Password123"
+        }, follow_redirects=True)
+        self.assertIn(b"restricted disposable/test domain", res.data)
+
+        # 2. Rate limiter blocks overflow attempts
+        rate_limiter.reset("login_127.0.0.1")
+        for _ in range(6):
+            self.client.post("/login", data={"email": "victim@example.com", "password": "wrong"})
+        res_overflow = self.client.post("/login", data={"email": "victim@example.com", "password": "wrong"})
+        self.assertEqual(res_overflow.status_code, 429)
+        self.assertIn(b"Rate limit exceeded", res_overflow.data)
 
 if __name__ == "__main__":
     print("=" * 65)

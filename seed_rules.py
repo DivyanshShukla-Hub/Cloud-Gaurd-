@@ -144,16 +144,24 @@ def seed_database(db_path="cloudguard.db"):
             r,
         )
 
-    # Check if default admin exists before generating bcrypt hash (saves startup time)
-    cursor.execute("SELECT user_id FROM users WHERE email = 'admin@cloudguard.com'")
-    if not cursor.fetchone():
-        bcrypt = Bcrypt()
-        pw_hash = bcrypt.generate_password_hash("Admin@123").decode("utf-8")
-        cursor.execute(
-            """INSERT INTO users (email, password_hash, role, is_active)
-               VALUES (?, ?, ?, ?)""",
-            ("admin@cloudguard.com", pw_hash, "admin", 1),
-        )
+    # Seed default platform users (admin, analyst, viewer) so demo access persists across restarts
+    default_users = [
+        ("admin@cloudguard.com", "Admin@123", "admin"),
+        ("analyst@cloudguard.com", "Analyst@123", "analyst"),
+        ("viewer@cloudguard.com", "Viewer@123", "viewer"),
+    ]
+    bcrypt = None
+    for email, raw_pw, role in default_users:
+        cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
+        if not cursor.fetchone():
+            if bcrypt is None:
+                bcrypt = Bcrypt()
+            pw_hash = bcrypt.generate_password_hash(raw_pw).decode("utf-8")
+            cursor.execute(
+                """INSERT INTO users (email, password_hash, role, is_active)
+                   VALUES (?, ?, ?, 1)""",
+                (email, pw_hash, role),
+            )
 
     conn.commit()
     conn.close()

@@ -39,18 +39,26 @@
 
         <!-- 1-Click Demo Credentials Box -->
         <div class="mt-5 p-3.5 border-2 border-outline bg-surface-container-low">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-outline">
                 <span class="font-mono text-xs font-black uppercase text-on-surface flex items-center gap-1.5">
-                    <i class="fa-solid fa-key text-tertiary"></i> ROOT ADMIN TEST
+                    <i class="fa-solid fa-key text-tertiary"></i> PERSISTENT DEMO ACCOUNTS
                 </span>
-                <button type="button" class="font-mono text-xs font-bold uppercase px-2.5 py-1 bg-surface-container hover:bg-secondary hover:text-black text-on-surface border border-outline transition-all" onclick="fillCreds('admin@cloudguard.com', 'Admin@123')">
-                    Autofill
+                <span class="font-mono text-[10px] text-secondary font-bold uppercase">PRE-SEEDED</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+                <button type="button" class="font-mono text-[11px] font-bold uppercase px-2 py-1.5 bg-surface-container hover:bg-primary hover:text-black text-on-surface border border-outline transition-all cursor-pointer text-center" onclick="fillCreds('admin@cloudguard.com', 'Admin@123')">
+                    Admin
+                </button>
+                <button type="button" class="font-mono text-[11px] font-bold uppercase px-2 py-1.5 bg-surface-container hover:bg-primary hover:text-black text-on-surface border border-outline transition-all cursor-pointer text-center" onclick="fillCreds('analyst@cloudguard.com', 'Analyst@123')">
+                    Analyst
+                </button>
+                <button type="button" class="font-mono text-[11px] font-bold uppercase px-2 py-1.5 bg-surface-container hover:bg-primary hover:text-black text-on-surface border border-outline transition-all cursor-pointer text-center" onclick="fillCreds('viewer@cloudguard.com', 'Viewer@123')">
+                    Viewer
                 </button>
             </div>
-            <div class="font-mono text-xs text-on-surface-variant space-y-0.5">
-                <div>user: <span class="text-on-surface font-bold">admin@cloudguard.com</span></div>
-                <div>pass: <span class="text-on-surface font-bold">Admin@123</span></div>
-            </div>
+            <p class="font-mono text-[10px] text-on-surface-variant mt-2 text-center">
+                Always active &bull; Password: <span class="text-on-surface font-bold">&lt;Role&gt;@123</span>
+            </p>
         </div>
     </div>
 </div>
