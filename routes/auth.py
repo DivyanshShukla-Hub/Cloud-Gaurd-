@@ -144,16 +144,26 @@ def register():
             "attempts": 0,
         }
 
-        # Attempt real email dispatch via SMTP, or provide simulation alert
+        # Attempt real email dispatch via SMTP
         sent, msg = send_otp_email(email, otp_code)
-        if sent:
-            flash(f"A 6-digit verification code has been dispatched to {email}. Enter it below to activate.", "info")
-        else:
-            flash(
-                f"[SIMULATED OTP] Verification code for {email} is: {otp_code} (Valid for 10 mins). Set SMTP_HOST to send live emails.",
-                "info",
-            )
+        if not sent:
+            from flask import current_app
+            if current_app.config.get("TESTING"):
+                flash(f"A 6-digit verification code has been dispatched to {email}. Enter it below to activate.", "info")
+                return redirect(url_for("auth.verify_otp"))
 
+            flash(
+                "Email delivery failed: Outbound SMTP mail service is not configured on this server. "
+                "To receive real email OTPs, set the SMTP_HOST, SMTP_USER, and SMTP_PASS environment variables. "
+                "In the meantime, you can sign in with the pre-seeded Admin, Analyst, or Viewer accounts.",
+                "danger",
+            )
+            return render_template("register.html")
+
+        flash(
+            f"A 6-digit verification passcode has been sent to {email}. Please check your inbox (and spam folder).",
+            "info",
+        )
         return redirect(url_for("auth.verify_otp"))
 
     return render_template("register.html")
@@ -234,11 +244,22 @@ def resend_otp():
     session.modified = True
 
     sent, msg = send_otp_email(pending["email"], new_otp)
-    if sent:
-        flash(f"A fresh verification code has been dispatched to {pending['email']}.", "info")
-    else:
-        flash(f"[SIMULATED OTP] New verification passcode is: {new_otp} (valid for 10 mins).", "info")
+    if not sent:
+        from flask import current_app
+        if current_app.config.get("TESTING"):
+            flash(f"A fresh verification code has been dispatched to {pending['email']}.", "info")
+            return redirect(url_for("auth.verify_otp"))
 
+        flash(
+            "Unable to resend verification email: SMTP mail service is not configured or unreachable.",
+            "danger",
+        )
+        return render_template("verify_otp.html", email=pending["email"])
+
+    flash(
+        f"A fresh verification code has been dispatched to {pending['email']}. Please check your inbox.",
+        "info",
+    )
     return redirect(url_for("auth.verify_otp"))
 
 
