@@ -10,19 +10,19 @@
                 <i class="fa-solid fa-lock text-xs text-secondary"></i>
                 <span>ADMINISTRATION // RBAC_GOVERNANCE</span>
             </div>
-            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">Identity &amp; Access Management</h1>
+            <h1 class="font-headline text-2xl sm:text-3xl font-black text-on-surface uppercase tracking-tight">Identity &amp; Access Management</h1>
             <p class="font-mono text-xs text-on-surface-variant">Manage user roles (Admin, Analyst, Viewer), provision new team members, and activate or suspend platform access</p>
         </div>
-        <div class="flex items-center gap-3 flex-wrap">
-            <button onclick="toggleAddUserModal()" class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary transition-all cursor-pointer">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button onclick="toggleAddUserModal()" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-black text-xs uppercase border border-outline dark:border-primary transition-all cursor-pointer">
                 <i class="fa-solid fa-user-plus text-xs"></i>
                 <span>+ Provision User</span>
             </button>
-            <a href="{{ url_for('admin.rules') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+            <a href="{{ url_for('admin.rules') }}" class="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
                 <i class="fa-solid fa-sliders text-xs text-secondary"></i>
                 <span>Security Rules</span>
             </a>
-            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
                 <i class="fa-solid fa-file-shield text-xs text-secondary"></i>
                 <span>System Audit</span>
             </a>
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Quick Add User Collapsible Panel -->
-    <div id="addUserPanel" class="hidden bg-surface-container border-2 border-primary p-5 transition-all">
+    <div id="addUserPanel" class="hidden bg-surface-container border-2 border-primary p-4 sm:p-5 transition-all">
         <div class="flex items-center justify-between border-b-2 border-outline pb-3 mb-4">
             <div class="flex items-center gap-2 font-headline font-black text-sm uppercase text-on-surface">
                 <i class="fa-solid fa-user-shield text-[#e11d48] dark:text-primary"></i>
@@ -70,7 +70,7 @@
 
     <!-- Users Table Card -->
     <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
-        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex items-center justify-between gap-4">
+        <div class="px-4 sm:px-5 py-3.5 sm:py-4 bg-surface-container-low border-b-2 border-outline flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-primary/20 text-on-surface dark:text-primary border border-outline dark:border-primary flex items-center justify-center">
                     <i class="fa-solid fa-users-gear text-sm"></i>
@@ -79,7 +79,7 @@
                     Registered Directory Users ({{ users|length }})
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 <button onclick="toggleAddUserModal()" class="font-mono text-xs px-2.5 py-1 bg-surface-container hover:bg-primary text-on-surface hover:text-black dark:hover:text-white border border-outline transition-all font-bold uppercase flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-[11px]"></i>
                     <span>+ Add User</span>
@@ -88,8 +88,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto w-full">
-            <table class="w-full text-left border-collapse">
+        <div class="overflow-x-auto w-full table-scroll-container">
+            <table class="w-full text-left border-collapse min-w-[720px]">
                 <thead>
                     <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
                         <th class="py-3 px-4 border-r border-outline" scope="col">User ID</th>

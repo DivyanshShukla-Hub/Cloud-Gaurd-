@@ -10,15 +10,15 @@
                 <i class="fa-solid fa-lock text-xs text-secondary"></i>
                 <span>ADMINISTRATION // ENGINE_GOVERNANCE</span>
             </div>
-            <h1 class="font-headline text-3xl font-black text-on-surface uppercase tracking-tight">CIS Benchmark Rules Registry</h1>
+            <h1 class="font-headline text-2xl sm:text-3xl font-black text-on-surface uppercase tracking-tight">CIS Benchmark Rules Registry</h1>
             <p class="font-mono text-xs text-on-surface-variant">Enable or disable specific security controls evaluated across the 15 cloud benchmark checks</p>
         </div>
-        <div class="flex items-center gap-3 flex-wrap">
-            <a href="{{ url_for('admin.users') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <a href="{{ url_for('admin.users') }}" class="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
                 <i class="fa-solid fa-users text-xs text-secondary"></i>
                 <span>Users</span>
             </a>
-            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
+            <a href="{{ url_for('admin.audit') }}" class="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all">
                 <i class="fa-solid fa-file-shield text-xs text-secondary"></i>
                 <span>Audit Log</span>
             </a>
@@ -27,7 +27,7 @@
 
     <!-- Rules Table Card -->
     <div class="bg-surface-container border-2 border-outline overflow-hidden flex flex-col">
-        <div class="px-5 py-4 bg-surface-container-low border-b-2 border-outline flex items-center justify-between gap-4">
+        <div class="px-4 sm:px-5 py-3.5 sm:py-4 bg-surface-container-low border-b-2 border-outline flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-secondary/10 text-secondary border border-secondary flex items-center justify-center">
                     <i class="fa-solid fa-sliders text-sm"></i>
@@ -39,8 +39,8 @@
             <span class="font-mono text-[11px] px-2 py-0.5 bg-surface-container-high border border-outline text-secondary font-bold uppercase">CIS_AZURE_v1.8</span>
         </div>
 
-        <div class="overflow-x-auto w-full">
-            <table class="w-full text-left border-collapse">
+        <div class="overflow-x-auto w-full table-scroll-container">
+            <table class="w-full text-left border-collapse min-w-[640px]">
                 <thead>
                     <tr class="bg-surface-container-high border-b-2 border-outline font-mono text-xs text-on-surface uppercase tracking-wider font-black">
                         <th class="py-3 px-4 border-r border-outline w-20" scope="col">Control</th>
