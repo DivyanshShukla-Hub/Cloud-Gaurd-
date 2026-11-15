@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resourceType": "Microsoft.Storage/storageAccounts",
+  "name": "corpfinanceunsecureblobs",
+  "location": "eastus2",
+  "comments": "BAD CONFIG 1: Anonymous public read access enabled, HTTP unencrypted traffic permitted, TLS 1.0 downgrade",
+  "storage": {
+    "allowBlobPublicAccess": true,
+    "supportsHttpsTrafficOnly": false,
+    "encryption": false
+  },
+  "tls": {
+    "minimumVersion": "1.0"
+  },
+  "resource": {
+    "lock": false,
+    "tags": {}
+  },
+  "backup": {
+    "enabled": false
+  },
+  "diagnostics": {
+    "auditLog": false
+  }
+}

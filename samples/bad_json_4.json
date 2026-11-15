@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resourceType": "Microsoft.Web/sites",
+  "name": "api-customer-payments-gateway",
+  "location": "northeurope",
+  "comments": "BAD CONFIG 4: Plaintext password connection string, wildcard CORS policy (*), diagnostics disabled",
+  "appSettings": {
+    "connectionString": "Server=tcp:sql-pay.database.windows.net;Database=paydb;User Id=secadmin;Password=SuperInsecurePassword123!;"
+  },
+  "cors": {
+    "allowedOrigins": "*"
+  },
+  "diagnostics": {
+    "auditLog": false
+  },
+  "backup": {
+    "enabled": false
+  },
+  "resource": {
+    "lock": false,
+    "tags": {}
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resourceType": "Microsoft.Sql/servers",
+  "name": "sql-hardened-customer-ledger",
+  "location": "centralus",
+  "comments": "GOOD CONFIG 2: Restrictive IP firewall rules, TLS 1.2+, automated backup retention, audit logging active",
+  "storage": {
+    "allowBlobPublicAccess": false,
+    "supportsHttpsTrafficOnly": true,
+    "encryption": true
+  },
+  "sql": {
+    "firewallRules": [
+      {
+        "name": "AppSubnetWhitelisted",
+        "startIpAddress": "10.0.4.1",
+        "endIpAddress": "10.0.4.254"
+      },
+      {
+        "name": "AdminVPNWhitelisted",
+        "startIpAddress": "198.51.100.5",
+        "endIpAddress": "198.51.100.10"
+      }
+    ]
+  },
+  "tls": {
+    "minimumVersion": "1.2"
+  },
+  "network": {
+    "defaultAction": "Deny"
+  },
+  "rbac": {
+    "adminScope": "resourceGroup"
+  },
+  "diagnostics": {
+    "auditLog": true
+  },
+  "identity": {
+    "mfaEnabled": true
+  },
+  "cors": {
+    "allowedOrigins": [
+      "https://app.cloudguard.io"
+    ]
+  },
+  "backup": {
+    "enabled": true
+  },
+  "alerts": {
+    "activityLog": true
+  },
+  "resource": {
+    "lock": true,
+    "tags": {
+      "Environment": "Production",
+      "Workload": "RDBMS-Customer-Ledger",
+      "Confidentiality": "High"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resourceType": "Microsoft.Sql/servers",
+  "name": "sql-prod-customer-ledger",
+  "location": "centralus",
+  "comments": "BAD CONFIG 2: Zero database firewall rules (open to all), weak TLS 1.1, automated backups disabled",
+  "sql": {
+    "firewallRules": []
+  },
+  "tls": {
+    "minimumVersion": "1.1"
+  },
+  "backup": {
+    "enabled": false
+  },
+  "diagnostics": {
+    "auditLog": false
+  },
+  "resource": {
+    "lock": false,
+    "tags": {}
+  }
+}

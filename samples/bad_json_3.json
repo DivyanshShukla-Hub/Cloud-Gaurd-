@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resourceType": "Microsoft.Network/networkSecurityGroups",
+  "name": "nsg-backend-cluster-mesh",
+  "location": "westus2",
+  "comments": "BAD CONFIG 3: Inbound traffic default Allow (0.0.0.0/0), overly broad subscription-level admin scope, MFA disabled",
+  "network": {
+    "defaultAction": "Allow"
+  },
+  "rbac": {
+    "adminScope": "subscription"
+  },
+  "identity": {
+    "mfaEnabled": false
+  },
+  "alerts": {
+    "activityLog": false
+  },
+  "resource": {
+    "lock": false,
+    "tags": {}
+  }
+}
