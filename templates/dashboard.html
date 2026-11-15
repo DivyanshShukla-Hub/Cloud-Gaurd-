@@ -45,10 +45,17 @@
                 <i class="fa-solid fa-sliders text-xs text-secondary"></i>
                 <span>Analytics</span>
             </a>
+            {% if session.get('role') in ['analyst', 'admin'] %}
             <a href="{{ url_for('scans.upload') }}" class="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 bg-primary hover:bg-primary/90 text-black dark:text-white font-headline font-bold text-xs uppercase border border-outline dark:border-primary transition-all">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span>+ New Scan</span>
             </a>
+            {% else %}
+            <span class="font-mono text-xs px-2.5 py-1.5 bg-surface-container border border-outline text-on-surface-variant font-bold uppercase flex items-center gap-1.5" title="Viewer has read-only audit access">
+                <i class="fa-solid fa-eye text-xs text-secondary"></i>
+                <span>Read-Only Auditor</span>
+            </span>
+            {% endif %}
         </div>
     </div>
 

@@ -80,6 +80,11 @@ class SecurityTestSuite(unittest.TestCase):
             self.assertIn(b"Admin access required", res.data)
             self.assertNotIn(b"Registered Directory Users", res.data)
 
+        # Try to access upload endpoint as viewer (must be blocked)
+        res_upload = self.client.get("/upload", follow_redirects=True)
+        self.assertEqual(res_upload.status_code, 200)
+        self.assertIn(b"Permission Denied", res_upload.data)
+
     def test_03_malicious_file_extensions_blocked(self):
         """Ensures non-whitelisted extensions (.exe, .sh, .py, .php) are rejected."""
         # Login as admin

@@ -294,10 +294,12 @@
             <i class="fa-solid fa-house w-4 text-center text-sm flex-shrink-0 {% if request.endpoint != 'scans.dashboard' %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Dashboard</span>
         </a>
+        {% if session.get('role') in ['analyst', 'admin'] %}
         <a onclick="closeMobileSidebar()" class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint == 'scans.upload' %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.upload') }}" data-tooltip="Upload Scan">
             <i class="fa-solid fa-upload w-4 text-center text-sm flex-shrink-0 {% if request.endpoint != 'scans.upload' %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Upload Scan</span>
         </a>
+        {% endif %}
         <a onclick="closeMobileSidebar()" class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 font-headline font-semibold border transition-all {% if request.endpoint in ['scans.history', 'scans.results'] %}bg-primary text-black dark:text-white border-outline dark:border-primary{% else %}text-on-surface-variant hover:text-on-surface border-transparent hover:border-outline hover:bg-surface-container-high{% endif %}" href="{{ url_for('scans.history') }}" data-tooltip="Scan History">
             <i class="fa-solid fa-clock-rotate-left w-4 text-center text-sm flex-shrink-0 {% if request.endpoint not in ['scans.history', 'scans.results'] %}text-secondary{% endif %}"></i>
             <span class="tracking-wide text-sm uppercase sidebar-text whitespace-nowrap">Scan History</span>

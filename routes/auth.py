@@ -30,6 +30,19 @@ def admin_required(f):
     return wrapper
 
 
+def analyst_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in first.", "warning")
+            return redirect(url_for("auth.login"))
+        if session.get("role") == "viewer":
+            flash("Permission Denied: Your account has 'Viewer' (Read-Only) permissions. Only Analysts and Admins can upload and execute security scans.", "warning")
+            return redirect(url_for("scans.dashboard"))
+        return f(*args, **kwargs)
+    return wrapper
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if "user_id" in session:

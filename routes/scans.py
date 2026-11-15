@@ -3,7 +3,7 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app, abort
 from werkzeug.utils import secure_filename
 from models.db import get_db, log_audit
-from routes.auth import login_required
+from routes.auth import login_required, analyst_required
 from services.parser import parse_config, ParseError
 from services.rule_engine import run_rules, compute_risk_score
 
@@ -56,7 +56,7 @@ def dashboard():
 
 
 @scans_bp.route("/upload", methods=["GET", "POST"])
-@login_required
+@analyst_required
 def upload():
     if request.method == "POST":
         if "config_file" not in request.files:
