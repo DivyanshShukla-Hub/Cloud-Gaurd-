@@ -181,6 +181,53 @@ def results(scan_id):
     return render_template("results.html", scan=scan, findings=findings)
 
 
+@scans_bp.route("/scan/results/<int:scan_id>/pdf")
+@login_required
+def download_pdf(scan_id):
+    db = get_db()
+    uid = session["user_id"]
+
+    scan = db.execute("SELECT * FROM scans WHERE scan_id = ?", (scan_id,)).fetchone()
+    if not scan:
+        flash("Scan not found.", "danger")
+        return redirect(url_for("scans.history"))
+
+    if scan["user_id"] != uid and session.get("role") != "admin":
+        flash("Access denied.", "danger")
+        return redirect(url_for("scans.dashboard"))
+
+    findings = db.execute(
+        """SELECT f.*, r.rule_name, r.fix_guidance, c.category_name
+           FROM findings f
+           JOIN rules r ON f.rule_id = r.rule_id
+           LEFT JOIN rule_categories c ON r.category_id = c.category_id
+           WHERE f.scan_id = ?
+           ORDER BY
+               CASE f.severity
+                   WHEN 'Critical' THEN 1
+                   WHEN 'High' THEN 2
+                   WHEN 'Medium' THEN 3
+                   WHEN 'Low' THEN 4
+               END""",
+        (scan_id,),
+    ).fetchall()
+
+    from services.pdf_generator import generate_scan_pdf
+    from flask import Response
+
+    operator_email = session.get("email", "SecOps Analyst")
+    pdf_data = generate_scan_pdf(dict(scan), [dict(f) for f in findings], operator_email)
+
+    safe_name = os.path.splitext(scan["filename"])[0].replace(" ", "_")
+    download_filename = f"CloudGuard_Audit_{safe_name}_scan{scan_id}.pdf"
+
+    return Response(
+        pdf_data,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{download_filename}"'},
+    )
+
+
 @scans_bp.route("/scan/history")
 @login_required
 def history():

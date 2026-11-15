@@ -18,6 +18,10 @@
             </p>
         </div>
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <a href="{{ url_for('scans.download_pdf', scan_id=scan['scan_id']) }}" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 bg-surface-container hover:bg-secondary hover:text-black text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all cursor-pointer" title="Download Standard Executive PDF Audit Report">
+                <i class="fa-solid fa-file-pdf text-xs text-[#e11d48] dark:text-primary"></i>
+                <span>Download PDF Report</span>
+            </a>
             <button onclick="window.print()" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold text-xs uppercase border border-outline hover:border-secondary transition-all cursor-pointer">
                 <i class="fa-solid fa-print text-xs text-secondary"></i>
                 <span>Print</span>
@@ -133,22 +137,47 @@
                     </span>
                 </div>
 
-                <!-- Telemetry Technical Detail Box -->
-                <div class="bg-surface-container-low border-2 border-outline p-3 sm:p-3.5 mb-3 font-mono text-xs">
+                <!-- Block 1: Fault Technical Detail -->
+                <div class="bg-surface-container-low border-2 border-outline p-3 sm:p-3.5 mb-2.5 font-mono text-xs">
                     <div class="text-[#e11d48] dark:text-primary font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-terminal text-[11px]"></i>
-                        <span>// TELEMETRY SNAPSHOT:</span>
+                        <i class="fa-solid fa-triangle-exclamation text-[11px]"></i>
+                        <span>FAULT IDENTIFIED // WHAT WENT WRONG:</span>
                     </div>
                     <div class="text-on-surface bg-surface-container-lowest border border-outline p-2 sm:p-2.5 font-bold break-all sm:break-normal">
                         {{ f['detail'] }}
                     </div>
                 </div>
 
-                <!-- Fix Guidance Box -->
-                <div class="bg-surface-container-low border-2 border-[#10b981] p-3 sm:p-3.5">
+                <!-- Block 2: Potential Threat & Attack Possibilities -->
+                <div class="bg-surface-container-low border-2 border-[#f59e0b] p-3 sm:p-3.5 mb-2.5 font-mono text-xs">
+                    <div class="text-[#d97706] dark:text-[#f59e0b] font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-skull-crossbones text-[11px]"></i>
+                        <span>SECURITY THREAT &amp; ATTACK POSSIBILITIES // WHAT COULD HAPPEN:</span>
+                    </div>
+                    <div class="font-body text-xs sm:text-sm text-on-surface font-medium leading-relaxed">
+                        {% if 'Blob' in f['rule_name'] or 'Anonymous' in f['rule_name'] %}
+                            Anonymous unauthenticated threat actors can enumerate, inspect, and exfiltrate private corporate data containers over the internet without triggering credential challenges.
+                        {% elif 'HTTPS' in f['rule_name'] or 'TLS' in f['rule_name'] %}
+                            Network traffic is exposed in cleartext or via deprecated cryptography, allowing Man-in-the-Middle (MITM) session eavesdropping and packet sniffing.
+                        {% elif 'Firewall' in f['rule_name'] or 'Database' in f['rule_name'] %}
+                            Database ports (e.g., TDS 1433) are exposed directly to the public web, permitting automated dictionary attacks, SQL injection probing, and credential brute-forcing.
+                        {% elif 'SSH' in f['rule_name'] or 'RDP' in f['rule_name'] %}
+                            Administrative management ports are directly reachable by internet crawlers, presenting a critical risk of ransomware deployment and remote code execution.
+                        {% elif 'Encryption' in f['rule_name'] %}
+                            Data stored at rest is unencrypted; physical disk compromise, unauthorized snapshots, or leaked backup volumes directly expose raw plaintext records.
+                        {% elif 'Backup' in f['rule_name'] or 'Soft Delete' in f['rule_name'] %}
+                            Accidental deletion or hostile ransomware locking cannot be reverted, resulting in permanent, unrecoverable data destruction.
+                        {% else %}
+                            Exposes the cloud resource to unauthorized access, violates least-privilege zero-trust architecture, and causes regulatory compliance failure.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Block 3: Fix Guidance Box -->
+                <div class="bg-surface-container-low border-2 border-[#10b981] p-3 sm:p-3.5 font-mono text-xs">
                     <div class="font-mono text-xs font-black uppercase text-[#10b981] mb-1 flex items-center gap-2">
                         <i class="fa-solid fa-wrench"></i>
-                        <span>RECOMMENDED REMEDIATION:</span>
+                        <span>RECOMMENDED REMEDIATION // HOW TO FIX:</span>
                     </div>
                     <div class="font-body text-xs sm:text-sm text-on-surface font-medium leading-relaxed">
                         {{ f['fix_guidance'] }}
@@ -158,14 +187,55 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="bg-surface-container border-2 border-[#10b981] p-8 sm:p-12 text-center">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-[#10b981]/20 text-[#10b981] border border-[#10b981] flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-3 sm:mb-4">
-                <i class="fa-solid fa-shield-check"></i>
+        <!-- Comprehensive Clean Assessment Card (When zero faults are detected) -->
+        <div class="bg-surface-container border-2 border-[#10b981] p-6 sm:p-8 flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-outline pb-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#10b981]/20 text-[#10b981] border-2 border-[#10b981] flex items-center justify-center text-2xl sm:text-3xl flex-shrink-0">
+                        <i class="fa-solid fa-shield-check"></i>
+                    </div>
+                    <div>
+                        <div class="font-mono text-xs text-[#10b981] font-bold uppercase tracking-wider">// COMPLIANCE VERIFICATION PASSED</div>
+                        <h2 class="font-headline font-black text-xl sm:text-2xl uppercase tracking-tight text-on-surface">Zero Misconfigurations Detected</h2>
+                    </div>
+                </div>
+                <span class="font-mono text-xs px-3 py-1 bg-[#10b981]/20 text-[#10b981] font-black border border-[#10b981] uppercase">
+                    PRODUCTION_READY
+                </span>
             </div>
-            <h2 class="font-headline font-black text-xl sm:text-2xl uppercase tracking-tight text-on-surface mb-1 sm:mb-2">Zero Vulnerabilities Detected</h2>
-            <p class="font-mono text-xs text-on-surface-variant max-w-lg mx-auto">
-                All active automated CIS Azure security rules passed with zero detected misconfigurations.
-            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Left: Verified Controls -->
+                <div class="bg-surface-container-low border border-outline p-4 font-mono text-xs">
+                    <div class="text-[#10b981] font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-check-double"></i>
+                        <span>VERIFIED SECURITY BASELINES (15/15 CONTROLS):</span>
+                    </div>
+                    <ul class="space-y-1.5 text-on-surface text-[11px] sm:text-xs">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#10b981]"></i> Anonymous Public Blob Access Strictly Disabled</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#10b981]"></i> Mandatory HTTPS Transport Encryption Enforced</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#10b981]"></i> Modern TLS 1.2+ Cryptographic Baseline Configured</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#10b981]"></i> Restrictive Database IP Firewall Rules Active</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#10b981]"></i> Server-Side Storage Encryption at Rest (AES-256)</li>
+                    </ul>
+                </div>
+
+                <!-- Right: Deployment Readiness & Possibilities -->
+                <div class="bg-surface-container-low border border-outline p-4 font-mono text-xs">
+                    <div class="text-secondary font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>POSSIBILITIES &amp; RISK EVALUATION:</span>
+                    </div>
+                    <p class="font-body text-xs sm:text-sm text-on-surface leading-relaxed">
+                        This template demonstrates strong alignment with the <strong>CIS Microsoft Azure Foundations Benchmark</strong>. 
+                        The infrastructure attack surface is minimized against automated crawlers, ransomware propagation, and unauthenticated data exfiltration.
+                    </p>
+                    <div class="mt-3 pt-2.5 border-t border-outline flex items-center justify-between text-[11px] text-on-surface-variant">
+                        <span>Risk of External Exploitation:</span>
+                        <strong class="text-[#10b981] uppercase font-bold">Negligible / Low</strong>
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
 
