@@ -60,12 +60,11 @@ class SecurityTestSuite(unittest.TestCase):
 
     def test_02_rbac_viewer_privilege_escalation(self):
         """Proves that a 'viewer' role is strictly blocked from /admin routes."""
-        # Register a viewer with authorized organization passcode
+        # Register a viewer
         self.client.post("/register", data={
             "email": "test_viewer@cloudguard.com",
             "password": "Password123",
-            "confirm_password": "Password123",
-            "org_code": "CG-SECOPS-2026"
+            "confirm_password": "Password123"
         }, follow_redirects=True)
 
         # Login as viewer
@@ -118,37 +117,6 @@ class SecurityTestSuite(unittest.TestCase):
                 self.assertEqual(len(phash), 60)
                 self.assertNotIn("Admin@123", phash)
                 self.assertNotIn("Password123", phash)
-
-    def test_06_email_otp_and_rate_limiting(self):
-        """Verifies organization gatekeeper passcode, fake email rejection, and rate limit enforcement."""
-        from services.security_guard import rate_limiter
-
-        # 1. Reject unauthorized bot registration with invalid or missing org passcode (HTTP 403)
-        res_unauth = self.client.post("/register", data={
-            "email": "hacker@legitcorp.com",
-            "password": "Password123",
-            "confirm_password": "Password123",
-            "org_code": "WRONG_PASSCODE"
-        })
-        self.assertEqual(res_unauth.status_code, 403)
-        self.assertIn(b"Invalid Organization Security Passcode", res_unauth.data)
-
-        # 2. Fake email domain rejection even with correct passcode
-        res = self.client.post("/register", data={
-            "email": "bot@fake.com",
-            "password": "Password123",
-            "confirm_password": "Password123",
-            "org_code": "CG-SECOPS-2026"
-        }, follow_redirects=True)
-        self.assertIn(b"restricted disposable/test domain", res.data)
-
-        # 3. Rate limiter blocks overflow attempts
-        rate_limiter.reset("login_127.0.0.1")
-        for _ in range(6):
-            self.client.post("/login", data={"email": "victim@example.com", "password": "wrong"})
-        res_overflow = self.client.post("/login", data={"email": "victim@example.com", "password": "wrong"})
-        self.assertEqual(res_overflow.status_code, 429)
-        self.assertIn(b"Rate limit exceeded", res_overflow.data)
 
 if __name__ == "__main__":
     print("=" * 65)

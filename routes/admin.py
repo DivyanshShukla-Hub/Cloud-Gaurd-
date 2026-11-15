@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from flask_bcrypt import Bcrypt
 from models.db import get_db, log_audit
 from routes.auth import admin_required
-from services.security_guard import validate_email_format
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 bcrypt = Bcrypt()
@@ -29,9 +28,8 @@ def create_user():
         flash("Email and password are required to create a user.", "danger")
         return redirect(url_for("admin.users"))
 
-    is_valid_email, email_err = validate_email_format(email)
-    if not is_valid_email:
-        flash(email_err, "danger")
+    if "@" not in email or "." not in email:
+        flash("Please enter a valid email address.", "danger")
         return redirect(url_for("admin.users"))
 
     if len(password) < 6:
